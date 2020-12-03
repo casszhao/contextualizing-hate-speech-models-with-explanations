@@ -259,7 +259,8 @@ def main():
     processors = {
         'gab': GabProcessor,
         'ws': WSProcessor,
-        'nyt': NytProcessor
+        'nyt': NytProcessor,
+        'AG10K': AG10KProcessor
     }
 
     output_modes = {
