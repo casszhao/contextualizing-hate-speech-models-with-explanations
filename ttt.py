@@ -1,5 +1,5 @@
 import pandas as pd
-df = pd.read_csv('./data/white_supremacy/stormfront_train.csv')
+df = pd.read_csv('./data/Gab/test.tsv', header=0, sep='\t')
 
 
 
@@ -11,4 +11,4 @@ df = pd.read_csv('./data/white_supremacy/stormfront_train.csv')
 
 #df.to_csv('./data/white_supremacy/dev.tsv', sep='\t', index=False)
 
-print(df['label'].value_counts())
+print(df['is_hate'].value_counts())
