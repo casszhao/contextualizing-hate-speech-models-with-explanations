@@ -189,6 +189,10 @@ def main():
                         default=32,
                         type=int,
                         help="Total batch size for eval.")
+    parser.add_argument("--validate_steps",
+                        default=200,
+                        type=int,
+                        help="validate once for how many steps")
     parser.add_argument("--learning_rate",
                         default=5e-5,
                         type=float,
@@ -473,7 +477,7 @@ def main():
                     optimizer.zero_grad()
                     global_step += 1
 
-                if global_step % 200 == 0:
+                if global_step % args.validate_steps == 0:
                     val_result = validate(args, model, processor, tokenizer, output_mode, label_list, device,
                                           num_labels,
                                           task_name, tr_loss, global_step, epoch, explainer)
