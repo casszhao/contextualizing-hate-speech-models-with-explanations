@@ -28,7 +28,7 @@ from sklearn.metrics import matthews_corrcoef, f1_score
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
 
 from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss
+from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss, BertForSequenceClassification_Ss_IDW
 from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 
@@ -323,12 +323,17 @@ def main():
                                                                    'distributed_{}'.format(args.local_rank))
     if args.do_train:
 
-        model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
-                                                              cache_dir=cache_dir,
-                                                              num_labels=num_labels)
+        # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
+        #                                                       cache_dir=cache_dir,
+        #                                                       num_labels=num_labels)
+        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
+                                                                 cache_dir=cache_dir,
+                                                                 num_labels=num_labels)
+
 
     else:
-        model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
+        #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels)
     model.to(device)
 
     if args.fp16:
