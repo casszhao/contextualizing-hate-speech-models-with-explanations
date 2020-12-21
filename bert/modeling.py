@@ -952,6 +952,24 @@ class BertForSequenceClassification_Ss(BertPreTrainedModel):
             return logits
 
 
+def read_igw(in_file):
+    f = open(in_file, 'r')
+    line = f.readline()
+    res=set()
+    while line:
+        line = f.readline().strip()
+        if line.startswith("#") or len(line)==0:
+            continue
+        res.add(line)
+    print(' identifiers')
+    print(res)
+    return res
+
+
+idgw_file = "./data/identity_group_words.txt"
+igw=read_igw(idgw_file)
+
+
 class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
     def __init__(self, config, num_labels=None, tokenizer=None):
@@ -960,20 +978,20 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         self.tokenizer = tokenizer
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size+1, num_labels)
+        self.classifier = nn.Linear(config.hidden_size+2, num_labels)
         self.apply(self.init_bert_weights)
 
-    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None):
+    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None):
         _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
         pooled_output = self.dropout(pooled_output)
 
         # tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
 
         inputids_first_dimension = input_ids.size()[0]
-        Ss = torch.empty(inputids_first_dimension, 1)
+        Ss = torch.empty(inputids_first_dimension, 1).to(device)
+        IDW = torch.empty(inputids_first_dimension, 1).to(device)
         for i, the_id in enumerate(input_ids):
             sent = tokenizer.convert_ids_to_tokens(the_id.tolist())
-
             new_sent = ''
             for word in sent:
                 if word != '[PAD]':
@@ -983,7 +1001,15 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             subjective = blob.sentiment.subjectivity
             Ss[i, 0] = subjective
 
-        pooled_output = torch.cat([pooled_output, Ss], dim=1)
+            sent = [x.lower() for x in sent]
+            words = set(sent)
+            inter = words.intersection(igw)
+            if len(inter) > 0:
+                IDW[i, 0] = 1
+            elif len(inter) = 0:
+                IDW[i, 0] = 0
+
+        pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
         logits = self.classifier(pooled_output)
 
         if labels is not None:
@@ -992,10 +1018,6 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             return loss
         else:
             return logits
-
-
-
-
 
 
 
