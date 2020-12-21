@@ -966,7 +966,7 @@ def read_igw(in_file):
     return res
 
 
-idgw_file = "../data/identity_group_words.txt"
+idgw_file = "./data/identity_group_words.txt"
 igw=read_igw(idgw_file)
 
 
