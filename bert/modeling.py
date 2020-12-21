@@ -966,14 +966,14 @@ def read_igw(in_file):
     return res
 
 
-idgw_file = "./data/identity_group_words.txt"
+idgw_file = "../data/identity_group_words.txt"
 igw=read_igw(idgw_file)
 
 
 class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
     def __init__(self, config, num_labels=None, tokenizer=None):
-        super(BertForSequenceClassification_Ss, self).__init__(config)
+        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
         self.num_labels = num_labels
         self.tokenizer = tokenizer
         self.bert = BertModel(config)
@@ -1006,7 +1006,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             inter = words.intersection(igw)
             if len(inter) > 0:
                 IDW[i, 0] = 1
-            elif len(inter) = 0:
+            elif len(inter) == 0:
                 IDW[i, 0] = 0
 
         pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
