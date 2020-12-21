@@ -322,9 +322,11 @@ def main():
     cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE),
                                                                    'distributed_{}'.format(args.local_rank))
     if args.do_train:
+
         model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
                                                               cache_dir=cache_dir,
                                                               num_labels=num_labels)
+
     else:
         model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
     model.to(device)
@@ -434,7 +436,7 @@ def main():
                 input_ids, input_mask, segment_ids, label_ids = batch
 
                 # define a new function to compute loss values for both output_modes
-                logits = model(input_ids, segment_ids, input_mask, labels=None)
+                logits = model(input_ids, segment_ids, input_mask, labels=None, tokenizer=tokenizer)
 
                 if output_mode == "classification":
                     loss_fct = CrossEntropyLoss(class_weight)
