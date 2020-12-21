@@ -912,7 +912,7 @@ class BertForNextSentencePrediction(BertPreTrainedModel):
 class BertForSequenceClassification_Ss(BertPreTrainedModel):
 
     def __init__(self, config, num_labels):
-        super(BertForSequenceClassification, self).__init__(config)
+        super(BertForSequenceClassification_Ss, self).__init__(config)
         self.num_labels = num_labels
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
