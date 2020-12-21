@@ -946,7 +946,7 @@ class BertForSequenceClassification_Ss(BertPreTrainedModel):
         else:
             return logits
 
-class BertForSequenceClassification_origin(BertPreTrainedModel):
+class BertForSequenceClassification(BertPreTrainedModel):
 
     def __init__(self, config, num_labels):
         super(BertForSequenceClassification, self).__init__(config)
