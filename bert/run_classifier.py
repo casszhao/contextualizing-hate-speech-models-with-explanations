@@ -36,7 +36,7 @@ from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import matthews_corrcoef, f1_score
 
 from .file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-from .modeling import BertForSequenceClassification, BertConfig
+from .modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_SsIDIW
 from .tokenization import BertTokenizer
 from .optimization import BertAdam, WarmupLinearSchedule
 
@@ -406,14 +406,40 @@ def convert_examples_to_features(examples, label_list, max_seq_length,
                                  tokenizer, output_mode):
     """Loads a data file into a list of `InputBatch`s."""
 
-    label_map = {label : i for i, label in enumerate(label_list)}
+    idw = ['muslim',
+           'jew',
+           'jews',
+           ]
 
+    label_map = {label : i for i, label in enumerate(label_list)}
     features = []
+
     for (ex_index, example) in enumerate(examples):
         if ex_index % 10000 == 0:
             logger.info("Writing example %d of %d" % (ex_index, len(examples)))
 
+        # print('====================== \n')
+        # print('example.text_a')
+        # print(example.text_a)
+        #
+        #
+        # # add in input id to give Ss score
+        # blob = TextBlob(example.text_a)
+        # Ss = blob.sentiment.subjectivity
+        #
+        # # add in mask to indicate if contains IDW
+        # words = set(nltk.word_tokenize(example.text_a.lower()))
+        # inter = words.intersection(idw)
+        # if len(inter) > 0:
+        #     IDW = 1
+        # elif len(inter) == 0:  # do not have IDW
+        #     IDW = 0
+
+
         tokens_a = tokenizer.tokenize(example.text_a)
+        print(' =============== tokens_a =========== \n')
+        print(tokens_a)
+        STOP
 
         tokens_b = None
         if example.text_b:
@@ -746,7 +772,7 @@ def main():
 
     # Prepare model
     cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE), 'distributed_{}'.format(args.local_rank))
-    model = BertForSequenceClassification.from_pretrained(args.bert_model,
+    model = BertForSequenceClassification_SsIDIW.from_pretrained(args.bert_model,
               cache_dir=cache_dir,
               num_labels=num_labels)
     if args.fp16:
@@ -875,10 +901,10 @@ def main():
         tokenizer.save_vocabulary(args.output_dir)
 
         # Load a trained model and vocabulary that you have fine-tuned
-        model = BertForSequenceClassification.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BertForSequenceClassification_SsIDIW.from_pretrained(args.output_dir, num_labels=num_labels)
         tokenizer = BertTokenizer.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
     else:
-        model = BertForSequenceClassification.from_pretrained(args.bert_model, num_labels=num_labels)
+        model = BertForSequenceClassification_SsIDIW.from_pretrained(args.bert_model, num_labels=num_labels)
     model.to(device)
 
     if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
