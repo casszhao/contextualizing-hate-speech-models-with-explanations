@@ -1,14 +1,21 @@
-import pandas as pd
-df = pd.read_csv('./data/Gab/test.tsv', header=0, sep='\t')
+import torch
+from bert.tokenization import BertTokenizer
+tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
 
 
+tensor = ([101, 2105, 1019, 1003, 1997, 12029, 2015, 4823, 2006, 2028,
+           2754, 1012, 102, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0])
 
-#df.columns = ['doc_id','text','is_hate']
-
-#df['is_hate'] = (df['is_hate'] == 'hate').astype(int)
-
-#selected_columns = ['comment','label']
-
-#df.to_csv('./data/white_supremacy/dev.tsv', sep='\t', index=False)
-
-print(df['is_hate'].value_counts())
+sent = tokenizer.convert_ids_to_tokens(tensor)
+print(sent)

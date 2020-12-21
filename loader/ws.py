@@ -70,7 +70,6 @@ class WSProcessor(DataProcessor):
             padding = [0] * (self.max_seq_length - len(input_ids))
             input_ids += padding
             input_ids = torch.LongTensor(input_ids)
-            #
             features.append({'text': input_ids, 'length': len(tokens)})
         return features
 
