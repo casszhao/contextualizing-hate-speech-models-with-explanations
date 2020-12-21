@@ -19,6 +19,7 @@ from .file_utils import cached_path, WEIGHTS_NAME, CONFIG_NAME
 
 
 from bert.tokenization import BertTokenizer
+from textblob import TextBlob
 
 logger = logging.getLogger(__name__)
 
@@ -911,8 +912,50 @@ class BertForNextSentencePrediction(BertPreTrainedModel):
 
 class BertForSequenceClassification_Ss(BertPreTrainedModel):
 
-    def __init__(self, config, num_labels):
+    def __init__(self, config, num_labels=None, tokenizer=None):
         super(BertForSequenceClassification_Ss, self).__init__(config)
+        self.num_labels = num_labels
+        self.tokenizer = tokenizer
+        self.bert = BertModel(config)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.classifier = nn.Linear(config.hidden_size+1, num_labels)
+        self.apply(self.init_bert_weights)
+
+    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None):
+        _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
+        pooled_output = self.dropout(pooled_output)
+
+        # tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
+
+        inputids_first_dimension = input_ids.size()[0]
+        Ss = torch.empty(inputids_first_dimension, 1)
+        for i, the_id in enumerate(input_ids):
+            sent = tokenizer.convert_ids_to_tokens(the_id.tolist())
+
+            new_sent = ''
+            for word in sent:
+                if word != '[PAD]':
+                    new_sent = new_sent + word + ' '
+
+            blob = TextBlob(new_sent)
+            subjective = blob.sentiment.subjectivity
+            Ss[i, 0] = subjective
+
+        pooled_output = torch.cat([pooled_output, Ss], dim=1)
+        logits = self.classifier(pooled_output)
+
+        if labels is not None:
+            loss_fct = CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            return loss
+        else:
+            return logits
+
+
+class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
+
+    def __init__(self, config, num_labels):
+        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
         self.num_labels = num_labels
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -945,6 +988,11 @@ class BertForSequenceClassification_Ss(BertPreTrainedModel):
             return loss
         else:
             return logits
+
+
+
+
+
 
 class BertForSequenceClassification(BertPreTrainedModel):
 

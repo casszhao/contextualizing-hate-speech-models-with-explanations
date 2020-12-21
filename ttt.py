@@ -18,4 +18,19 @@ tensor = ([101, 2105, 1019, 1003, 1997, 12029, 2015, 4823, 2006, 2028,
            0, 0, 0, 0, 0, 0, 0, 0])
 
 sent = tokenizer.convert_ids_to_tokens(tensor)
+# list = ['jew',
+#         'jews',
+#         'mexican',
+#         'blacks',
+#         'jewish',
+#         'brown',
+#         'black',
+#         'muslim',
+#         'homosexual',
+#         'islam',
+#         ]
+#
+# inter = sent.intersection(list)
+
+
 print(sent)
