@@ -437,7 +437,7 @@ def main():
                 input_ids, input_mask, segment_ids, label_ids = batch
 
                 # define a new function to compute loss values for both output_modes
-                logits = model(input_ids, segment_ids, input_mask, labels=None, tokenizer=tokenizer, device=device)
+                logits = model(input_ids, segment_ids, input_mask, labels=None)
 
                 if output_mode == "classification":
                     loss_fct = CrossEntropyLoss(class_weight)
@@ -550,7 +550,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         label_ids = label_ids.to(device)
 
         with torch.no_grad():
-            logits = model(input_ids, segment_ids, input_mask, labels=None, tokenizer=tokenizer, device=device)
+            logits = model(input_ids, segment_ids, input_mask, labels=None)
 
         # create eval loss and other metric required by the task
         if output_mode == "classification":
