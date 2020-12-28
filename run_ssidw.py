@@ -28,7 +28,7 @@ from sklearn.metrics import matthews_corrcoef, f1_score
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
 
 from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss, BertForSequenceClassification_Ss_IDW
+from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss, BertForSequenceClassification_Ss_IDW, BertForSequenceClassification_Ss_IDW_
 from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 
@@ -193,6 +193,10 @@ def main():
                         default=200,
                         type=int,
                         help="validate once for how many steps")
+    parser.add_argument("--alpha",
+                        default=0.5,
+                        type=float,
+                        help="multi task hypeparameter")
     parser.add_argument("--learning_rate",
                         default=5e-5,
                         type=float,
@@ -326,14 +330,15 @@ def main():
         # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
         #                                                       cache_dir=cache_dir,
         #                                                       num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
-                                                                 cache_dir=cache_dir,
-                                                                 num_labels=num_labels)
+        model = BertForSequenceClassification_Ss_IDW_.from_pretrained(args.bert_model,
+                                                                      cache_dir=cache_dir,
+                                                                      num_labels=num_labels,
+                                                                      alpha=args.alpha)
 
 
     else:
         #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BertForSequenceClassification_Ss_IDW_.from_pretrained(args.output_dir, num_labels=num_labels)
     model.to(device)
 
     if args.fp16:

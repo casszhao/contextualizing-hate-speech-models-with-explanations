@@ -14,6 +14,7 @@ from io import open
 import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss
+from torch.nn import functional as F
 
 from .file_utils import cached_path, WEIGHTS_NAME, CONFIG_NAME
 
@@ -1020,7 +1021,58 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             return logits
 
 
+class BertForSequenceClassification_Ss_IDW_(BertPreTrainedModel):
 
+    def __init__(self, config, num_labels=None, tokenizer=None):
+        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
+        self.num_labels = num_labels
+        self.tokenizer = tokenizer
+        self.bert = BertModel(config)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.classifier = nn.Linear(config.hidden_size+2, num_labels)
+        self.classifier_new = nn.Linear(config.hidden_size+2, 2)
+        self.apply(self.init_bert_weights)
+
+    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None, alpha=None):
+        _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
+        pooled_output = self.dropout(pooled_output)
+
+        # tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
+
+        inputids_first_dimension = input_ids.size()[0]
+        Ss = torch.empty(inputids_first_dimension, 1).to(device)
+        IDW = torch.empty(inputids_first_dimension, 1).to(device)
+        for i, the_id in enumerate(input_ids):
+            sent = tokenizer.convert_ids_to_tokens(the_id.tolist())
+            new_sent = ''
+            for word in sent:
+                if word != '[PAD]':
+                    new_sent = new_sent + word + ' '
+
+            blob = TextBlob(new_sent)
+            subjective = blob.sentiment.subjectivity
+            Ss[i, 0] = subjective
+
+            sent = [x.lower() for x in sent]
+            words = set(sent)
+            inter = words.intersection(igw)
+            if len(inter) > 0:
+                IDW[i, 0] = 1
+            elif len(inter) == 0:
+                IDW[i, 0] = 0
+
+        pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
+        IDW_logits = self.classifier_new(pooled_output)
+        logits = self.classifier(pooled_output)
+
+        if labels is not None:
+
+            loss = F.cross_entropy(logits.view(-1, self.num_labels), labels.view(-1))
+            IDW_loss = F.cross_entropy(IDW_logits.view(-1, self.num_labels), IDW.view(-1))
+            total_loss = loss + alpha * IDW_loss
+            return total_loss
+        else:
+            return logits
 
 class BertForSequenceClassification(BertPreTrainedModel):
 
