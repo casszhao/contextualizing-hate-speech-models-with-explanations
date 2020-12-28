@@ -2,9 +2,16 @@ import torch
 from bert.tokenization import BertTokenizer
 import pandas as pd
 
-data = pd.read_csv('data/multi-label/train.tsv', sep='\t')
+tensor1 = torch.tensor([[1,1,1],
+                       [2,2,2]])
 
-print(data['is_hate'].value_counts())
+
+
+tensor2 = torch.tensor([[0.5],
+            [1]])
+
+tensor3 = tensor1 * tensor2
+print(tensor3)
 
 
 # tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
