@@ -332,8 +332,7 @@ def main():
         #                                                       num_labels=num_labels)
         model = BertForSequenceClassification_Ss_IDW_.from_pretrained(args.bert_model,
                                                                       cache_dir=cache_dir,
-                                                                      num_labels=num_labels,
-                                                                      alpha=args.alpha)
+                                                                      num_labels=num_labels)
 
 
     else:
@@ -446,14 +445,7 @@ def main():
                 input_ids, input_mask, segment_ids, label_ids = batch
 
                 # define a new function to compute loss values for both output_modes
-                logits = model(input_ids, segment_ids, input_mask, labels=None, tokenizer=tokenizer, device=device)
-
-                if output_mode == "classification":
-                    loss_fct = CrossEntropyLoss(class_weight)
-                    loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
-                elif output_mode == "regression":
-                    loss_fct = MSELoss()
-                    loss = loss_fct(logits.view(-1), label_ids.view(-1))
+                loss = model(input_ids, segment_ids, input_mask, labels=label_ids, tokenizer=tokenizer, device=device, alpha=args.alpha)
 
                 if n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu.
