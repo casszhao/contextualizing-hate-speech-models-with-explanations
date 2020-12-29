@@ -1188,6 +1188,11 @@ class BertForSequenceClassification_Ss_IDW_neg(BertPreTrainedModel):
             return logits
 
 
+'''
+logit * Ss
+with 
+additional loss of neg
+'''
 class BertForSequenceClassification_Ss_IDW_neg_multiply(BertPreTrainedModel):
 
     def __init__(self, config, num_labels=None, tokenizer=None):
@@ -1231,7 +1236,7 @@ class BertForSequenceClassification_Ss_IDW_neg_multiply(BertPreTrainedModel):
                 IDW[i, 0] = 0
                 IDW_neg[i, 0] = 1
 
-        pooled_output = pooled_output, Ss, IDW], dim=1)
+        pooled_output = pooled_output*Ss
         IDW_logits = self.classifier_new(pooled_output)
         logits = self.classifier(pooled_output)
 
