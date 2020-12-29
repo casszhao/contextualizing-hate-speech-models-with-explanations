@@ -1132,7 +1132,7 @@ class BertForSequenceClassification_Ss_IDW_multiply(BertPreTrainedModel):
 class BertForSequenceClassification_Ss_IDW_neg(BertPreTrainedModel):
 
     def __init__(self, config, num_labels=None, tokenizer=None):
-        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
+        super(BertForSequenceClassification_Ss_IDW_neg, self).__init__(config)
         self.num_labels = num_labels
         self.tokenizer = tokenizer
         self.bert = BertModel(config)
