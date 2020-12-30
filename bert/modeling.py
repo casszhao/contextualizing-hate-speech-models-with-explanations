@@ -1088,7 +1088,7 @@ class BertForSequenceClassification_Ss_IDW_multiply(BertPreTrainedModel):
         self.apply(self.init_bert_weights)
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None,
-                alpha=None):
+                alpha=None, class_weight=None):
         _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
         pooled_output = self.dropout(pooled_output)
 
