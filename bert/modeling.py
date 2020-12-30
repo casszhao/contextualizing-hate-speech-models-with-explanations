@@ -1123,6 +1123,7 @@ class BertForSequenceClassification_Ss_IDW_multiply(BertPreTrainedModel):
         if labels is not None:
             loss_fct = CrossEntropyLoss(class_weight)
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            IDW = IDW.long()
             IDW_loss = F.cross_entropy(IDW_logits.view(-1, self.num_labels), IDW.view(-1))
             total_loss = loss + alpha * IDW_loss
             return total_loss
