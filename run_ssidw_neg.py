@@ -329,14 +329,14 @@ def main():
         # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
         #                                                       cache_dir=cache_dir,
         #                                                       num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW_neg.from_pretrained(args.bert_model,
+        model = BertForSequenceClassification_Ss_IDW_multiply.from_pretrained(args.bert_model,
                                                                       cache_dir=cache_dir,
                                                                       num_labels=num_labels)
 
 
     else:
         #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW_neg.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BertForSequenceClassification_Ss_IDW_multiply.from_pretrained(args.output_dir, num_labels=num_labels)
     model.to(device)
 
     if args.fp16:

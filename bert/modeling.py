@@ -1078,7 +1078,7 @@ class BertForSequenceClassification_Ss_IDW_(BertPreTrainedModel):
 class BertForSequenceClassification_Ss_IDW_multiply(BertPreTrainedModel):
 
     def __init__(self, config, num_labels=None, tokenizer=None):
-        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
+        super(BertForSequenceClassification_Ss_IDW_multiply, self).__init__(config)
         self.num_labels = num_labels
         self.tokenizer = tokenizer
         self.bert = BertModel(config)
@@ -1120,7 +1120,8 @@ class BertForSequenceClassification_Ss_IDW_multiply(BertPreTrainedModel):
         IDW_logits = self.classifier_new(pooled_output)
 
         if labels is not None:
-            loss = F.cross_entropy(logits.view(-1, self.num_labels), labels.view(-1))
+            loss_fct = CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             IDW_loss = F.cross_entropy(IDW_logits.view(-1, self.num_labels), IDW.view(-1))
             total_loss = loss + alpha * IDW_loss
             return total_loss
@@ -1196,7 +1197,7 @@ additional loss of neg
 class BertForSequenceClassification_Ss_IDW_neg_multiply(BertPreTrainedModel):
 
     def __init__(self, config, num_labels=None, tokenizer=None):
-        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
+        super(BertForSequenceClassification_Ss_IDW_neg_multiply, self).__init__(config)
         self.num_labels = num_labels
         self.tokenizer = tokenizer
         self.bert = BertModel(config)
