@@ -1021,59 +1021,10 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             return logits
 
 
-class BertForSequenceClassification_Ss_IDW_(BertPreTrainedModel):
-
-    def __init__(self, config, num_labels=None, tokenizer=None):
-        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
-        self.num_labels = num_labels
-        self.tokenizer = tokenizer
-        self.bert = BertModel(config)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size+2, num_labels)
-        self.classifier_new = nn.Linear(config.hidden_size+2, 2)
-        self.apply(self.init_bert_weights)
-
-    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None, alpha=None):
-        _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
-        pooled_output = self.dropout(pooled_output)
-
-        # tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
-
-        inputids_first_dimension = input_ids.size()[0]
-        Ss = torch.empty(inputids_first_dimension, 1).to(device)
-        IDW = torch.empty(inputids_first_dimension, 1).to(device)
-        for i, the_id in enumerate(input_ids):
-            sent = tokenizer.convert_ids_to_tokens(the_id.tolist())
-            new_sent = ''
-            for word in sent:
-                if word != '[PAD]':
-                    new_sent = new_sent + word + ' '
-
-            blob = TextBlob(new_sent)
-            subjective = blob.sentiment.subjectivity
-            Ss[i, 0] = subjective
-
-            sent = [x.lower() for x in sent]
-            words = set(sent)
-            inter = words.intersection(igw)
-            if len(inter) > 0:
-                IDW[i, 0] = 1
-            elif len(inter) == 0:
-                IDW[i, 0] = 0
-
-        pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
-        IDW_logits = self.classifier_new(pooled_output)
-        logits = self.classifier(pooled_output)
-
-        if labels is not None:
-
-            loss = F.cross_entropy(logits.view(-1, self.num_labels), labels.view(-1))
-            IDW_loss = F.cross_entropy(IDW_logits.view(-1, self.num_labels), IDW.view(-1))
-            total_loss = loss + alpha * IDW_loss
-            return total_loss
-        else:
-            return logits
-
+'''
+128*Ss
+positive loss for IDW
+'''
 
 class BertForSequenceClassification_Ss_IDW_multiply(BertPreTrainedModel):
 
@@ -1131,70 +1082,10 @@ class BertForSequenceClassification_Ss_IDW_multiply(BertPreTrainedModel):
             return logits
 
 
-
-class BertForSequenceClassification_Ss_IDW_neg(BertPreTrainedModel):
-
-    def __init__(self, config, num_labels=None, tokenizer=None):
-        super(BertForSequenceClassification_Ss_IDW_neg, self).__init__(config)
-        self.num_labels = num_labels
-        self.tokenizer = tokenizer
-        self.bert = BertModel(config)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size +2, num_labels)
-        self.classifier_new = nn.Linear(config.hidden_size +2, 2)
-        self.apply(self.init_bert_weights)
-
-    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None, alpha=None, class_weight=None):
-        _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
-        pooled_output = self.dropout(pooled_output)
-
-        # tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
-
-        inputids_first_dimension = input_ids.size()[0]
-        Ss = torch.empty(inputids_first_dimension, 1).to(device)
-        IDW = torch.empty(inputids_first_dimension, 1).to(device)
-        IDW_neg = torch.empty(inputids_first_dimension, 1).to(device)
-        for i, the_id in enumerate(input_ids):
-            sent = tokenizer.convert_ids_to_tokens(the_id.tolist())
-            new_sent = ''
-            for word in sent:
-                if word != '[PAD]':
-                    new_sent = new_sent + word + ' '
-
-            blob = TextBlob(new_sent)
-            subjective = blob.sentiment.subjectivity
-            Ss[i, 0] = subjective
-
-            sent = [x.lower() for x in sent]
-            words = set(sent)
-            inter = words.intersection(igw)
-            if len(inter) > 0:
-                IDW[i, 0] = 1
-                IDW_neg[i, 0] = 0
-            elif len(inter) == 0:
-                IDW[i, 0] = 0
-                IDW_neg[i, 0] = 1
-
-        pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
-        IDW_logits = self.classifier_new(pooled_output)
-        logits = self.classifier(pooled_output)
-
-        if labels is not None:
-            loss_fct = CrossEntropyLoss(class_weight)
-            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-
-            #loss = F.cross_entropy(logits.view(-1, self.num_labels), labels.view(-1))
-            IDW_loss = F.cross_entropy(IDW_logits.view(-1, self.num_labels), IDW_neg.view(-1))
-            total_loss = loss + alpha * IDW_loss
-            return total_loss
-        else:
-            return logits
-
-
 '''
-logit * Ss
-with 
-additional loss of neg
+128*Ss
+IDW as the 129th element
+negative loss for IDW
 '''
 class BertForSequenceClassification_Ss_IDW_neg_multiply(BertPreTrainedModel):
 
@@ -1204,11 +1095,12 @@ class BertForSequenceClassification_Ss_IDW_neg_multiply(BertPreTrainedModel):
         self.tokenizer = tokenizer
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size, num_labels)
-        self.classifier_new = nn.Linear(config.hidden_size, 2)
+        self.classifier = nn.Linear(config.hidden_size+1, num_labels)
+        self.classifier_new = nn.Linear(config.hidden_size+1, 2)
         self.apply(self.init_bert_weights)
 
-    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None, alpha=None, class_weight=None):
+    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None,
+                alpha=None, class_weight=None):
         _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
         pooled_output = self.dropout(pooled_output)
 
@@ -1217,7 +1109,7 @@ class BertForSequenceClassification_Ss_IDW_neg_multiply(BertPreTrainedModel):
         inputids_first_dimension = input_ids.size()[0]
         Ss = torch.empty(inputids_first_dimension, 1).to(device)
         IDW = torch.empty(inputids_first_dimension, 1).to(device)
-        IDW_neg = torch.empty(inputids_first_dimension, 1).to(device)
+        neg_IDW = torch.empty(inputids_first_dimension, 1).to(device)
         for i, the_id in enumerate(input_ids):
             sent = tokenizer.convert_ids_to_tokens(the_id.tolist())
             new_sent = ''
@@ -1234,21 +1126,21 @@ class BertForSequenceClassification_Ss_IDW_neg_multiply(BertPreTrainedModel):
             inter = words.intersection(igw)
             if len(inter) > 0:
                 IDW[i, 0] = 1
-                IDW_neg[i, 0] = 0
+                neg_IDW[i, 0] = 0
             elif len(inter) == 0:
                 IDW[i, 0] = 0
-                IDW_neg[i, 0] = 1
+                neg_IDW[i, 0] = 1
 
-        pooled_output = pooled_output*Ss
-        IDW_logits = self.classifier_new(pooled_output)
+        pooled_output = torch.cat([pooled_output, IDW], dim=1)
+        pooled_output = pooled_output * Ss
         logits = self.classifier(pooled_output)
+        IDW_logits = self.classifier_new(pooled_output)
 
         if labels is not None:
             loss_fct = CrossEntropyLoss(class_weight)
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-
-            #loss = F.cross_entropy(logits.view(-1, self.num_labels), labels.view(-1))
-            IDW_loss = F.cross_entropy(IDW_logits.view(-1, self.num_labels), IDW_neg.view(-1))
+            neg_IDW = neg_IDW.long()
+            IDW_loss = F.cross_entropy(IDW_logits.view(-1, self.num_labels), neg_IDW.view(-1))
             total_loss = loss + alpha * IDW_loss
             return total_loss
         else:

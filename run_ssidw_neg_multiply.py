@@ -18,7 +18,7 @@ from torch.nn import functional as F
 from tqdm import tqdm, trange
 
 """
-Running run_ssidw.py
+Running model = BertForSequenceClassification_Ss_IDW_neg
 """
 
 from torch.nn import CrossEntropyLoss, MSELoss
@@ -27,7 +27,7 @@ from sklearn.metrics import matthews_corrcoef, f1_score
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
 
 from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss_IDW_multiply
+from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss_IDW_neg_multiply
 from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 
@@ -329,14 +329,14 @@ def main():
         # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
         #                                                       cache_dir=cache_dir,
         #                                                       num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW_multiply.from_pretrained(args.bert_model,
+        model = BertForSequenceClassification_Ss_IDW_neg_multiply.from_pretrained(args.bert_model,
                                                                       cache_dir=cache_dir,
                                                                       num_labels=num_labels)
 
 
     else:
         #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW_multiply.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BertForSequenceClassification_Ss_IDW_neg_multiply.from_pretrained(args.output_dir, num_labels=num_labels)
     model.to(device)
 
     if args.fp16:
