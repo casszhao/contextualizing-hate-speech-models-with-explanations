@@ -445,7 +445,7 @@ def main():
 
                 # define a new function to compute loss values for both output_modes
                 loss = model(input_ids, segment_ids, input_mask, labels=label_ids, tokenizer=tokenizer, device=device,
-                             alpha=args.alpha, class_weight=class_weight)
+                             class_weight=class_weight)
 
                 if n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu.
