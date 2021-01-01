@@ -330,14 +330,14 @@ def main():
         # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
         #                                                       cache_dir=cache_dir,
         #                                                       num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW_neg.from_pretrained(args.bert_model,
+        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
                                                                       cache_dir=cache_dir,
                                                                       num_labels=num_labels)
 
 
     else:
         #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW_neg.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels)
     model.to(device)
 
     if args.fp16:
@@ -446,7 +446,7 @@ def main():
 
                 # define a new function to compute loss values for both output_modes
                 loss = model(input_ids, segment_ids, input_mask, labels=label_ids, tokenizer=tokenizer, device=device,
-                             alpha=args.alpha, class_weight=class_weight)
+                             class_weight=class_weight)
 
                 if n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu.

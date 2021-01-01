@@ -982,7 +982,8 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         self.classifier = nn.Linear(config.hidden_size+2, num_labels)
         self.apply(self.init_bert_weights)
 
-    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None):
+    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None,
+                class_weight=None):
         _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
         pooled_output = self.dropout(pooled_output)
 
@@ -1014,7 +1015,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         logits = self.classifier(pooled_output)
 
         if labels is not None:
-            loss_fct = CrossEntropyLoss()
+            loss_fct = CrossEntropyLoss(class_weight)
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             return loss
         else:
