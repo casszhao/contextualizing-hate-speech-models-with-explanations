@@ -10,6 +10,8 @@ import tarfile
 import tempfile
 import sys
 from io import open
+import pandas as pd
+import re
 
 import torch
 from torch import nn
@@ -967,8 +969,27 @@ def read_igw(in_file):
     return res
 
 
-idgw_file = "./data/identity_group_words.txt"
+
+
+def txt2csv():
+
+    data = pd.read_csv('./identity.csv',sep='\t')
+
+    # print(data.head(4))
+    identity = data['muslim'].tolist()
+
+    with open('./identity_words.txt','a') as f:
+        for line in identity:
+            f.write("%s\n" % line)
+
+txt2csv()
+idgw_file = args.neutral_words_file #csv file
+# csv to txt
+
+
+#txt to list
 igw=read_igw(idgw_file)
+
 
 
 class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
@@ -984,6 +1005,8 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None,
                 class_weight=None):
+        print('input id size: ', input_ids.size())
+        print('input id: ', input_ids)
         _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
         pooled_output = self.dropout(pooled_output)
 
