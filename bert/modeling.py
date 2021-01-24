@@ -983,7 +983,8 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             elif len(inter) == 0:
                 IDW[i, 0] = 0
 
-
+        IDW.to(device)
+        Ss.to(device)
         pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
         logits = self.classifier(pooled_output)
 
