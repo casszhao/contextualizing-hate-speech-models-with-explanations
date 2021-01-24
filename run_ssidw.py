@@ -445,8 +445,14 @@ def main():
                 input_ids, input_mask, segment_ids, label_ids = batch
 
                 # define a new function to compute loss values for both output_modes
-                loss = model(input_ids, segment_ids, input_mask, labels=label_ids, tokenizer=tokenizer, device=device,
-                             class_weight=class_weight)
+                logits = model(input_ids, segment_ids, input_mask, labels=None)
+
+                if output_mode == "classification":
+                    loss_fct = CrossEntropyLoss(class_weight)
+                    loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
+                elif output_mode == "regression":
+                    loss_fct = MSELoss()
+                    loss = loss_fct(logits.view(-1), label_ids.view(-1))
 
                 if n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu.
