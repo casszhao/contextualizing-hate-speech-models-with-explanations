@@ -914,40 +914,6 @@ class BertForNextSentencePrediction(BertPreTrainedModel):
 
 
 
-def read_igw(in_file):
-    f = open(in_file, 'r')
-    line = f.readline()
-    res=set()
-    while line:
-        line = f.readline().strip()
-        if line.startswith("#") or len(line)==0:
-            continue
-        res.add(line)
-    print(' identifiers')
-    print(res)
-    return res
-
-
-
-
-def txt2csv():
-
-    data = pd.read_csv('./identity.csv',sep='\t')
-
-    # print(data.head(4))
-    identity = data['muslim'].tolist()
-
-    with open('./identity_words.txt','a') as f:
-        for line in identity:
-            f.write("%s\n" % line)
-
-txt2csv()
-idgw_file = args.neutral_words_file #csv file
-# csv to txt
-
-
-#txt to list
-igw=read_igw(idgw_file)
 
 class BertForSequenceClassification(BertPreTrainedModel):
 
@@ -971,9 +937,13 @@ class BertForSequenceClassification(BertPreTrainedModel):
         else:
             return logits
 
+
+
+
+
 class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
-    def __init__(self, config, num_labels=None, tokenizer=None):
+    def __init__(self, config, num_labels=None, tokenizer=None, igw_after_chuli=None):
         super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
         self.num_labels = num_labels
         self.tokenizer = tokenizer
@@ -981,9 +951,10 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size+2, num_labels)
         self.apply(self.init_bert_weights)
+        self.igw = igw_after_chuli
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None,
-                class_weight=None):
+                ):
         print('input id size: ', input_ids.size())
         print('input id: ', input_ids)
         _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
@@ -1009,7 +980,8 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
             sent = [x.lower() for x in sent]
             words = set(sent)
-            inter = words.intersection(igw)
+
+            inter = words.intersection(self.igw)
             if len(inter) > 0:
                 IDW[i, 0] = 1
             elif len(inter) == 0:

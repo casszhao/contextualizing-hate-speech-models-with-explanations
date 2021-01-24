@@ -325,19 +325,52 @@ def main():
     # Prepare model
     cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE),
                                                                    'distributed_{}'.format(args.local_rank))
+
+
+
+    words_csv_file = args.neutral_words_file
+
+    def csv2txt(words_csv_file):
+        data = pd.read_csv(words_csv_file, sep='\t', header=None)
+
+        # print(data.head(4))
+        identity = data[0].tolist()
+
+        with open('./idw.txt', 'a') as f:
+            for line in identity:
+                f.write("%s\n" % line)
+
+    words_txt_file = csv2txt(words_csv_file)
+
+    def read_igw(in_file):
+        f = open(in_file, 'r')
+        line = f.readline()
+        res = set()
+        while line:
+            line = f.readline().strip()
+            if line.startswith("#") or len(line) == 0:
+                continue
+            res.add(line)
+        print(' identifiers')
+        print(res)
+        return res
+
+    igw_after_chuli = read_igw(words_txt_file)
+
     if args.do_train:
 
         # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
         #                                                       cache_dir=cache_dir,
         #                                                       num_labels=num_labels)
         model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
-                                                                      cache_dir=cache_dir,
-                                                                      num_labels=num_labels)
+                                                                     cache_dir=cache_dir,
+                                                                     num_labels=num_labels,
+                                                                     igw_after_chuli=igw_after_chuli)
 
 
     else:
         #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels, igw_after_chuli=igw_after_chuli)
     model.to(device)
 
     if args.fp16:
