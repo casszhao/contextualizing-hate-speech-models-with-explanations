@@ -482,8 +482,7 @@ def main():
 
                 if global_step % args.validate_steps == 0:
                     val_result = validate(args, model, processor, tokenizer, output_mode, label_list, device,
-                                          num_labels,
-                                          task_name, tr_loss, global_step, epoch, explainer)
+                                          num_labels, task_name, tr_loss, global_step, epoch, explainer)
                     val_acc, val_f1 = val_result['acc'], val_result['f1']
                     if val_f1 > val_best_f1:
                         val_best_f1 = val_f1
@@ -501,6 +500,8 @@ def main():
                 break
             epoch += 1
 
+            # training finish ############################
+
     if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
         if not args.explain:
             validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
@@ -515,6 +516,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         eval_examples = processor.get_dev_examples(args.data_dir)
     else:
         eval_examples = processor.get_test_examples(args.data_dir)
+
     eval_features = convert_examples_to_features(
         eval_examples, label_list, args.max_seq_length, tokenizer, output_mode, configs)
     logger.info("***** Running evaluation *****")

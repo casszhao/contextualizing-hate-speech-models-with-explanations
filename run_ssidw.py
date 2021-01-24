@@ -360,7 +360,6 @@ def main():
     igw_after_chuli = read_igw()
 
     if args.do_train:
-
         # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
         #                                                       cache_dir=cache_dir,
         #                                                       num_labels=num_labels)
@@ -373,6 +372,7 @@ def main():
     else:
         #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
         model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels, igw_after_chuli=igw_after_chuli)
+
     model.to(device)
 
     if args.fp16:

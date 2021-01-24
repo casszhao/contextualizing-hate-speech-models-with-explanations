@@ -955,14 +955,10 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, tokenizer=None, device=None,
                 ):
-        print('input id size: ', input_ids.size())
-        print('input id: ', input_ids)
         _, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
         pooled_output = self.dropout(pooled_output)
-        print('pooled_output size: ', pooled_output.size())
-        print('pooled_output: ', pooled_output)
 
-        # tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
+        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
 
         inputids_first_dimension = input_ids.size()[0] # batch size
         Ss = torch.empty(inputids_first_dimension, 1).to(device)
