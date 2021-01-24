@@ -341,10 +341,11 @@ def main():
             for line in identity:
                 f.write("%s\n" % line)
 
-    words_txt_file = csv2txt(words_csv_file)
 
-    def read_igw(in_file):
-        f = open(in_file, 'r')
+    csv2txt(words_csv_file)
+
+    def read_igw():
+        f = open('./idw.txt', 'r')
         line = f.readline()
         res = set()
         while line:
@@ -356,7 +357,7 @@ def main():
         print(res)
         return res
 
-    igw_after_chuli = read_igw(words_txt_file)
+    igw_after_chuli = read_igw()
 
     if args.do_train:
 
