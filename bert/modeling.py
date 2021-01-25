@@ -1073,9 +1073,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         # extended_attention_mask size : torch.Size([32, 1, 1, 128])
         # Sizes are [batch_size, 1, 1, to_seq_length]
 
-        print('extended_attention_mask size :', extended_attention_mask.size())
         # torch.Size([32, 1, 1, 128])
-        print('IDW size: ', IDW.size())
 
         # 处理 embedding output
         embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
