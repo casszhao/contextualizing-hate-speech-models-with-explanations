@@ -1060,8 +1060,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             # IDW size [32, 1]
             # if extended_attention_mask size = [32, 128]
 
-        IDW.long().to(device)
-        Ss.to(device)
+
         #得到embeddings output + extended_attention_mask
         #要修改 embedding_output, extended_attention_mask 然后正常传入即可self.encoder()
 
@@ -1074,11 +1073,15 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         # Sizes are [batch_size, 1, 1, to_seq_length]
 
         # torch.Size([32, 1, 1, 128])
+        IDW.long().to(device)
+        Ss.to(device)
 
         # 处理 embedding output
         embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
 
         # 处理 attention mask
+        print(IDW.type())
+        print(attention_mask.type())
         attention_mask = torch.cat([attention_mask, IDW], dim=1)  # [32, 128] [32, 1] --> [32, 129]
         extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2) # [32, 129] --> [32, 1, 1, 129]
         extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
