@@ -972,6 +972,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         else:
             embedding_output = input_ids
         # embedding outputs size:  torch.Size([32, 128, 768])
+        print('embedding_output: ', embedding_output)
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
