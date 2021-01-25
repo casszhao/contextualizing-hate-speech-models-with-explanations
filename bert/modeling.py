@@ -971,13 +971,13 @@ class BertForSequenceClassification(BertPreTrainedModel):
             embedding_output = self.embeddings(input_ids, token_type_ids)
         else:
             embedding_output = input_ids
-        print('embedding outputs size: ', embedding_output.size())
+        # embedding outputs size:  torch.Size([32, 128, 768])
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
             output_all_encoded_layers=output_all_encoded_layers,
         )
-        print('encoder outputs size: ', encoder_outputs.size())
+        print('encoder outputs (list ?): ', encoder_outputs)
         sequence_output = encoder_outputs[-1]
         pooled_output = self.pooler(sequence_output) if self.pooler is not None else None
 
