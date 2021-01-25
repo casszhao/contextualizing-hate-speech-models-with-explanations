@@ -1060,7 +1060,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             # IDW size [32, 1]
             # if extended_attention_mask size = [32, 128]
 
-        IDW.to(device)
+        IDW.long().to(device)
         Ss.to(device)
         #得到embeddings output + extended_attention_mask
         #要修改 embedding_output, extended_attention_mask 然后正常传入即可self.encoder()

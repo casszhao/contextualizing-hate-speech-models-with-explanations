@@ -11,6 +11,8 @@ print(Ss.size())
 print(Ss)
 Ss = Ss.unsqueeze(1).unsqueeze(2)
 print(Ss.size())
+a = torch.empty(6,6)
+a.long()
 print(Ss)
 stop
 tensor2 = torch.tensor([[0.5],
