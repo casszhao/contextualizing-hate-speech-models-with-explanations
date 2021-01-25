@@ -973,14 +973,14 @@ class BertForSequenceClassification(BertPreTrainedModel):
             embedding_output = input_ids
         # embedding outputs size:  torch.Size([32, 128, 768])
 
-        print('extended_attention_mask size:', extended_attention_mask.size())
+        #print('extended_attention_mask size:', extended_attention_mask.size())
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
             output_all_encoded_layers=output_all_encoded_layers,
         )
-        print('encoder outputs length(list ?): ', len(encoder_outputs))
-        print('encoder_outputs[1].size(): ', encoder_outputs[1].size())
+        #print('encoder outputs length(list ?): ', len(encoder_outputs))
+        #print('encoder_outputs[1].size(): ', encoder_outputs[1].size())
         sequence_output = encoder_outputs[-1]
         pooled_output = self.pooler(sequence_output) if self.pooler is not None else None
 
@@ -1038,7 +1038,8 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
 
         inputids_first_dimension = input_ids.size()[0]  # batch size
-        Ss = torch.empty(inputids_first_dimension, 1, config.hidden_size).to(device) # e.g. [32, 1, 768]
+        hidden_dimensions = input_ids.size()[2]
+        Ss = torch.empty(inputids_first_dimension, 1, hidden_dimensions).to(device) # e.g. [32, 1, 768]
         IDW = torch.empty(inputids_first_dimension, 1).to(device)
         for i, the_id in enumerate(input_ids):
             sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
