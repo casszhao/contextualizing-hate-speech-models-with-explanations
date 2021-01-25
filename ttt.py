@@ -1,11 +1,15 @@
 import torch
-from bert.tokenization import BertTokenizer
+#from bert.tokenization import BertTokenizer
 import pandas as pd
 
 tensor1 = torch.tensor([[1,1,1],
                        [2,2,2]])
 
 
+Ss = torch.empty(32, 1, 768)
+print(Ss)
+Ss[0, 0, :] = 6
+print(Ss)
 
 tensor2 = torch.tensor([[0.5],
             [1]])

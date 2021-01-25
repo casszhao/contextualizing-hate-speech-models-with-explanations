@@ -972,14 +972,15 @@ class BertForSequenceClassification(BertPreTrainedModel):
         else:
             embedding_output = input_ids
         # embedding outputs size:  torch.Size([32, 128, 768])
-        print('embedding_output: ', embedding_output)
+
         print('extended_attention_mask:', extended_attention_mask)
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
             output_all_encoded_layers=output_all_encoded_layers,
         )
-        print('encoder outputs (list ?): ', encoder_outputs)
+        print('encoder outputs length(list ?): ', len(encoder_outputs))
+        print('encoder_outputs[1].size(): ', encoder_outputs[1].size())
         sequence_output = encoder_outputs[-1]
         pooled_output = self.pooler(sequence_output) if self.pooler is not None else None
 
@@ -1033,13 +1034,11 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             embedding_output = self.embeddings(input_ids, token_type_ids)
         else:
             embedding_output = input_ids
-
-得到embeddings output + extended_attention_mask
-要修改 embedding_output, extended_attention_mask 然后正常传入即可self.encoder()
+        # embedding size [32, 128, 768]
 
 
         inputids_first_dimension = input_ids.size()[0]  # batch size
-        Ss = torch.empty(inputids_first_dimension, 1).to(device)
+        Ss = torch.empty(inputids_first_dimension, 1, config.hidden_size).to(device) # e.g. [32, 1, 768]
         IDW = torch.empty(inputids_first_dimension, 1).to(device)
         for i, the_id in enumerate(input_ids):
             sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
@@ -1050,22 +1049,26 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
             blob = TextBlob(new_sent)
             subjective = blob.sentiment.subjectivity
-            Ss[i, 0] = subjective
+            Ss[i, 0, :] = subjective
+            # Ss size [32, 1, 768]
 
             sent = [x.lower() for x in sent]
             words = set(sent)
-
             inter = words.intersection(self.igw)
             if len(inter) > 0:
                 IDW[i, 0] = 1
             elif len(inter) == 0:
                 IDW[i, 0] = 0
+            # IDW size [32, 1]
+            # if extended_attention_mask size = [32, 128]
 
         IDW.to(device)
         Ss.to(device)
-        pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
+        #得到embeddings output + extended_attention_mask
+        #要修改 embedding_output, extended_attention_mask 然后正常传入即可self.encoder()
 
-
+        embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
+        extended_attention_mask = torch.cat([extended_attention_mask, IDW], dim=1) # [32, 128] [32, 1] --> [32, 129]
 
 
 
