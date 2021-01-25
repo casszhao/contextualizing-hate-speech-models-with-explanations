@@ -1037,8 +1037,8 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         # embedding size [32, 128, 768]
 
 
-        inputids_first_dimension = input_ids.size()[0]  # batch size
-        hidden_dimensions = input_ids.size()[2]
+        inputids_first_dimension = embedding_output.size()[0]  # batch size
+        hidden_dimensions = embedding_output.size()[2]
         Ss = torch.empty(inputids_first_dimension, 1, hidden_dimensions).to(device) # e.g. [32, 1, 768]
         IDW = torch.empty(inputids_first_dimension, 1).to(device)
         for i, the_id in enumerate(input_ids):
