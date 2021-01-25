@@ -480,7 +480,7 @@ def main():
                 input_ids, input_mask, segment_ids, label_ids = batch
 
                 # define a new function to compute loss values for both output_modes
-                logits = model(input_ids, segment_ids, input_mask, labels=None)
+                logits = model(input_ids, segment_ids, input_mask, labels=None, device=device)
 
                 if output_mode == "classification":
                     loss_fct = CrossEntropyLoss(class_weight)
