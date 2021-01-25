@@ -1037,7 +1037,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         inputids_first_dimension = embedding_output.size()[0]  # batch size
         hidden_dimensions = embedding_output.size()[2]
         Ss = torch.empty(inputids_first_dimension, 1, hidden_dimensions).to(device) # e.g. [32, 1, 768]
-        IDW = torch.empty(inputids_first_dimension, 1).to(device)
+        IDW = torch.empty([inputids_first_dimension, 1], dtype=torch.long).to(device)
         for i, the_id in enumerate(input_ids):
             sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
             new_sent = ''
@@ -1073,15 +1073,15 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         # Sizes are [batch_size, 1, 1, to_seq_length]
 
         # torch.Size([32, 1, 1, 128])
-        IDW.long().to(device)
+        #IDW.long().to(device)
         Ss.to(device)
 
         # 处理 embedding output
         embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
 
         # 处理 attention mask
-        print(IDW.type())
-        print(attention_mask.type())
+        print(IDW.type()) # torch.cuda.FloatTensor   need to convert to .cuda.LongTensor
+        print(attention_mask.type()) #torch.cuda.LongTensor
         attention_mask = torch.cat([attention_mask, IDW], dim=1)  # [32, 128] [32, 1] --> [32, 129]
         extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2) # [32, 129] --> [32, 1, 1, 129]
         extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
