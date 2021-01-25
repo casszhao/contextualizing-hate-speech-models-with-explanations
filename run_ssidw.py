@@ -548,8 +548,9 @@ def main():
 
     if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
         if not args.explain:
+            args.test = True
             validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
-                     task_name, tr_loss, global_step=0, epoch=-1, explainer=explainer, args.test)
+                     task_name, tr_loss, global_step=0, epoch=-1, explainer=explainer)
         else:
             explain(args, model, processor, tokenizer, output_mode, label_list, device)
 
