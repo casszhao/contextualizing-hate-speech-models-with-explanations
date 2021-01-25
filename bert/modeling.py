@@ -973,6 +973,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
             embedding_output = input_ids
         # embedding outputs size:  torch.Size([32, 128, 768])
         print('embedding_output: ', embedding_output)
+        print('extended_attention_mask:', extended_attention_mask)
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
@@ -994,6 +995,97 @@ class BertForSequenceClassification(BertPreTrainedModel):
             return loss
         else:
             return logits
+
+
+
+# new ss idw, add one ss dimension after embeddings layers and add one additional dimension in the mask
+class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
+
+    def __init__(self, config, num_labels=None, tokenizer=None, igw_after_chuli=None):
+        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
+        self.num_labels = num_labels
+        self.tokenizer = tokenizer
+
+        #self.bert = BertModel(config)
+        self.embeddings = BertEmbeddings(config)
+        self.encoder = BertEncoder(config)
+        self.pooler = BertPooler(config)
+
+
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.classifier = nn.Linear(config.hidden_size+1, num_labels)
+        self.apply(self.init_bert_weights)
+        self.igw = igw_after_chuli
+
+    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, device=None,
+                ):
+
+        #_, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
+        if attention_mask is None:
+            attention_mask = torch.ones_like(input_ids)
+        if token_type_ids is None:
+            token_type_ids = torch.zeros_like(input_ids)
+
+        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
+        extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
+        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
+        if len(input_ids.size()) == 2:
+            embedding_output = self.embeddings(input_ids, token_type_ids)
+        else:
+            embedding_output = input_ids
+
+得到embeddings output + extended_attention_mask
+要修改 embedding_output, extended_attention_mask 然后正常传入即可self.encoder()
+
+
+        inputids_first_dimension = input_ids.size()[0]  # batch size
+        Ss = torch.empty(inputids_first_dimension, 1).to(device)
+        IDW = torch.empty(inputids_first_dimension, 1).to(device)
+        for i, the_id in enumerate(input_ids):
+            sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
+            new_sent = ''
+            for word in sent:
+                if word != '[PAD]':
+                    new_sent = new_sent + word + ' '
+
+            blob = TextBlob(new_sent)
+            subjective = blob.sentiment.subjectivity
+            Ss[i, 0] = subjective
+
+            sent = [x.lower() for x in sent]
+            words = set(sent)
+
+            inter = words.intersection(self.igw)
+            if len(inter) > 0:
+                IDW[i, 0] = 1
+            elif len(inter) == 0:
+                IDW[i, 0] = 0
+
+        IDW.to(device)
+        Ss.to(device)
+        pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
+
+
+
+
+
+        encoder_output = self.encoder(embedding_output,
+                                      extended_attention_mask,
+                                      output_all_encoded_layers=output_all_encoded_layers)
+        sequence_output = encoder_output[-1]
+        pooled_output = self.pooler(sequence_output)
+
+
+        pooled_output = self.dropout(pooled_output).to(device)
+
+        logits = self.classifier(pooled_output)
+        if labels is not None:
+            loss_fct = CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            return loss
+        else:
+            return logits
+
 
 
 class BertForSequenceClassification_original(BertPreTrainedModel):
@@ -1019,8 +1111,7 @@ class BertForSequenceClassification_original(BertPreTrainedModel):
             return logits
 
 
-
-class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
+class BertForSequenceClassification_Ss_IDW_original(BertPreTrainedModel):
 
     def __init__(self, config, num_labels=None, tokenizer=None, igw_after_chuli=None):
         super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
@@ -1073,8 +1164,6 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             return loss
         else:
             return logits
-
-
 
 class BertForSequenceClassification_Ss_IDW_weight(BertPreTrainedModel):
 
