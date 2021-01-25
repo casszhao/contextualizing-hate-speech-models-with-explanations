@@ -958,13 +958,12 @@ class BertForSequenceClassification(BertPreTrainedModel):
             # used in OpenAI GPT, we just need to prepare the broadcast dimension here.
         extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
 
-        # Since attention_mask is 1.0 for positions we want to attend and 0.0 for
-        # masked positions, this operation will create a tensor which is 0.0 for
-        # positions we want to attend and -10000.0 for masked positions.
+        # Since attention_mask is 1.0 for positions we want to attend and 0.0 for masked positions,
+        # this operation will create a tensor which is 0.0 for positions we want to attend and -10000.0 for masked positions.
         # Since we are adding it to the raw scores before the softmax, this is
         # effectively the same as removing these entirely.
         extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
-        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
+        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0 #[1-->0, 0--> -10000.0]
 
         #_, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
         if len(input_ids.size()) == 2:
@@ -1027,9 +1026,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         if token_type_ids is None:
             token_type_ids = torch.zeros_like(input_ids)
 
-        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
-        extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
-        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
+
         if len(input_ids.size()) == 2:
             embedding_output = self.embeddings(input_ids, token_type_ids)
         else:
@@ -1068,14 +1065,28 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         #得到embeddings output + extended_attention_mask
         #要修改 embedding_output, extended_attention_mask 然后正常传入即可self.encoder()
 
+        # comments from the transformer source code:
+        # We can provide a self-attention mask of dimensions [batch_size, from_seq_length, to_seq_length]
+        # ourselves in which case we just need to make it broadcastable to all heads.
+        # If a 2D or 3D attention mask is provided for the cross-attention
+        # we need to make broadcastable to [batch_size, num_heads, seq_length, seq_length]
+        # extended_attention_mask size : torch.Size([32, 1, 1, 128])
+        # Sizes are [batch_size, 1, 1, to_seq_length]
+
         print('extended_attention_mask size :', extended_attention_mask.size())
+        # torch.Size([32, 1, 1, 128])
         print('IDW size: ', IDW.size())
 
+        # 处理 embedding output
         embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
-        extended_attention_mask = torch.cat([extended_attention_mask, IDW], dim=1) # [32, 128] [32, 1] --> [32, 129]
 
+        # 处理 attention mask
+        attention_mask = torch.cat([attention_mask, IDW], dim=1)  # [32, 128] [32, 1] --> [32, 129]
+        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2) # [32, 129] --> [32, 1, 1, 129]
+        extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
+        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
 
-
+        # 进 encoder
         encoder_output = self.encoder(embedding_output,
                                       extended_attention_mask,
                                       output_all_encoded_layers=output_all_encoded_layers)

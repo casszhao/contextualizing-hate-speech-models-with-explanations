@@ -6,11 +6,13 @@ tensor1 = torch.tensor([[1,1,1],
                        [2,2,2]])
 
 
-Ss = torch.empty(32, 1, 768)
+Ss = torch.empty(5, 1)
+print(Ss.size())
 print(Ss)
-Ss[0, 0, :] = 6
+Ss = Ss.unsqueeze(1).unsqueeze(2)
+print(Ss.size())
 print(Ss)
-
+stop
 tensor2 = torch.tensor([[0.5],
             [1]])
 
