@@ -1,9 +1,11 @@
 import pandas as pd
 import re
 
-def csv2txt():
+path = './data/eval_details_400_dev_ws.txt'
+new_csv_name = './data/eval_details_400_dev_ws.csv'
+def csv2txt(path, new_csv_name):
 
-    with open('./eval_details_400_dev_ws.txt', 'r') as f:
+    with open(path, 'r') as f:
         content = f.readlines()
 
 
@@ -31,4 +33,6 @@ def csv2txt():
 
     # print(df.head(5))
 
-    df.to_csv('./eval_details_400_dev_ws.csv', sep=',', index=False)
+    df.to_csv(new_csv_name, sep=',', index=False)
+
+csv2txt(path, new_csv_name)

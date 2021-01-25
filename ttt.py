@@ -11,9 +11,9 @@ print(Ss.size())
 print(Ss)
 Ss = Ss.unsqueeze(1).unsqueeze(2)
 print(Ss.size())
-a = torch.empty(6,6)
-a.long()
-print(Ss)
+IDW = torch.empty([5, 1], dtype=torch.long)
+IDW[0, 0] = 1
+print('IDW', IDW.type())
 stop
 tensor2 = torch.tensor([[0.5],
             [1]])
