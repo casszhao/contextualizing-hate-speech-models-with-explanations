@@ -7,7 +7,7 @@ import math
 import os
 import shutil
 import tarfile
-import tempfile
+import tempfilepr
 import sys
 from io import open
 import pandas as pd
@@ -948,11 +948,11 @@ class BertForSequenceClassification(BertPreTrainedModel):
         encoder_attention_mask=None,
         past_key_values=None,
         use_cache=None,
-        output_attentions=None,
+        #output_attentions=None,
         output_hidden_states=None,
         return_dict=None,):
 
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+        #output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
         )
@@ -1019,7 +1019,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
             encoder_attention_mask=encoder_extended_attention_mask,
             past_key_values=past_key_values,
             use_cache=use_cache,
-            output_attentions=output_attentions,
+            #output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
         )
