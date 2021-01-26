@@ -598,7 +598,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         label_ids = label_ids.to(device)
 
         with torch.no_grad():
-            logits = model(input_ids, segment_ids, input_mask, labels=None, tokenizer=tokenizer, device=device)
+            logits = model(input_ids, segment_ids, input_mask, labels=None, device=device)
 
         # create eval loss and other metric required by the task
         if output_mode == "classification":
