@@ -22,7 +22,13 @@ def csv2txt(path, new_csv_name):
         label.append(int(l))
         pre_non.append(float(number[0]))
         pre_toxic.append(float(number[1]))
-        text.append(t)
+
+        clean_txt = ''
+        word_list = t.split(' ')
+        for word in word_list[1:-1]:
+            clean_txt = clean_txt + word + ' '
+
+        text.append(clean_txt)
 
 
     df = pd.DataFrame({

@@ -9,9 +9,9 @@ nltk.download('averaged_perceptron_tagger')
 data_path = './results/ws_bert.csv'
 def addinfo(data_name, data_path):
     print(data_name)
-    df = pd.read_csv(data_path, usecols=['text','label'], dtype = {‘label’: np.int32} ) #, nrows=200
+    df = pd.read_csv(data_path, usecols=['text','label'] ) #, nrows=200
     # make pesudo prediction
-    df['Prediction'] = 0
+    df['Prediction'] = 1
     #df['text'] = df['text'].map(lambda x: x.lstrip('[CLS]',).rstrip('aAbBcC'))
     #df['text'] = df['text'].map(lambda x: x.lstrip('[SEP]',).rstrip('aAbBcC'))
     #df['text'] = df['text'].str.replace(r'[CLS]', '').str.replace(r'[SEP]', '')
@@ -29,7 +29,6 @@ def addinfo(data_name, data_path):
     #df['bb_polarity'] = bb_polarity
     df['Subjective Score'] = bb_subjective
     df['Data'] = data_name
-    print(df)
 
 
     def results_tpye(row):
@@ -43,10 +42,8 @@ def addinfo(data_name, data_path):
             return 'False Negative'
         return 'Other'
     df['Result'] = df.apply(lambda row: results_tpye(row), axis=1)
-    df = df.loc[df['Result'] == 'True Positive']
+    df = df.loc[(df['Result'] == 'True Positive') | (df['Result'] == 'False Positive')]
 
-    print(df)
-    print('Result:', df['Result'])
     print(df['Result'].value_counts())
 
     # only keep 'True Positive' and 'False Positive'
