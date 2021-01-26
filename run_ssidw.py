@@ -640,6 +640,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     elif output_mode == "regression":
         pred_labels = np.squeeze(preds)
     pred_prob = F.softmax(torch.from_numpy(preds).float(), -1).numpy()
+    print(pred_labels)
     result = compute_metrics(task_name, pred_labels, all_label_ids.numpy(), pred_prob)
     loss = tr_loss / (global_step + 1e-10) if args.do_train else None
 
@@ -662,6 +663,8 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     # write details file
     output_detail_file = os.path.join(args.output_dir, "eval_details_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
+
+    pr
     with open(output_detail_file,'w') as writer:
         for i, seq in enumerate(input_seqs):
             pred = preds[i]
