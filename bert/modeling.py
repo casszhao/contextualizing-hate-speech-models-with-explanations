@@ -1018,7 +1018,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         self.igw = igw_after_chuli
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, device=None,
-                output_all_encoded_layers=True,):
+                output_all_encoded_layers=True):
 
         #_, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
         if attention_mask is None:
