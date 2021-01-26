@@ -1089,14 +1089,17 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         encoder_output = self.encoder(embedding_output,
                                       extended_attention_mask,
                                       output_all_encoded_layers=output_all_encoded_layers)
+        print('encoder_output.size: ', encoder_output.size())
         sequence_output = encoder_output[-1]
+        print('sequence_output.size: ', sequence_output.size())
         pooled_output = self.pooler(sequence_output)
+        print('pooled_output.size: ', pooled_output.size())
 
 
         pooled_output = self.dropout(pooled_output).to(device)
-
         print('pooled_output size: ', pooled_output.size())
         logits = self.classifier(pooled_output)
+        print('logits size: ', logits.size())
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
