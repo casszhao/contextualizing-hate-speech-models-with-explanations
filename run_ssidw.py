@@ -561,6 +561,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         eval_examples = processor.get_dev_examples(args.data_dir)
     else:
         eval_examples = processor.get_test_examples(args.data_dir)
+        print('using test dataset')
     eval_features = convert_examples_to_features(
         eval_examples, label_list, args.max_seq_length, tokenizer, output_mode, configs)
     logger.info("***** Running evaluation *****")
@@ -664,7 +665,8 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         for i, seq in enumerate(input_seqs):
             pred = preds[i]
             gt = all_label_ids[i]
-            writer.write('{}\t{}\t{}\n'.format(gt, pred, seq))
+            pred_labels = pred_labels[i]
+            writer.write('{}\t{}\t{}\t{}\n'.format(gt, pred_labels, pred, seq))
 
     model.train(True)
     return result
