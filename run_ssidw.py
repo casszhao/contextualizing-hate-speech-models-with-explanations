@@ -664,7 +664,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     output_detail_file = os.path.join(args.output_dir, "eval_details_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
 
-    pr
+
     with open(output_detail_file,'w') as writer:
         for i, seq in enumerate(input_seqs):
             pred = preds[i]
