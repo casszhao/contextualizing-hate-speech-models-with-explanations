@@ -1077,6 +1077,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         Ss.to(device)
 
         # 处理 embedding output
+        embedding_output.to(device)
         embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
 
         # 处理 attention mask
