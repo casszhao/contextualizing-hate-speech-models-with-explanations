@@ -1001,7 +1001,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
 # new ss idw, add one ss dimension after embeddings layers and add one additional dimension in the mask
 class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
-    def __init__(self, BertEmbeddingsconfig, num_labels=None, tokenizer=None, igw_after_chuli=None):
+    def __init__(self, config, num_labels=None, tokenizer=None, igw_after_chuli=None):
         super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
         self.num_labels = num_labels
         self.tokenizer = tokenizer
@@ -1013,7 +1013,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
 
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size+1, num_labels)
+        self.classifier = nn.Linear(config.hidden_size, num_labels)
         self.apply(self.init_bert_weights)
         self.igw = igw_after_chuli
 
@@ -1089,17 +1089,17 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         encoder_output = self.encoder(embedding_output,
                                       extended_attention_mask,
                                       output_all_encoded_layers=output_all_encoded_layers)
-        print('encoder_output.size: ', encoder_output.size())
+        # encoder_output is a list of length, length:  12 and each element inside the list is size of torch.Size([8, 129, 768])
         sequence_output = encoder_output[-1]
-        print('sequence_output.size: ', sequence_output.size())
+        # sequence_output.size:  torch.Size([8, 129, 768])
         pooled_output = self.pooler(sequence_output)
-        print('pooled_output.size: ', pooled_output.size())
+        # pooled_output.size:  torch.Size([8, 768])
 
 
         pooled_output = self.dropout(pooled_output).to(device)
-        print('pooled_output size: ', pooled_output.size())
-        logits = self.classifier(pooled_output)
-        print('logits size: ', logits.size())
+        # pooled_output size:  torch.Size([8, 768])
+        logits = self.classifier(pooled_output) # self.classifier = nn.Linear(config.hidden_size+1, num_labels)
+                                                # size mismatch, m1: [32 x 768], m2: [769 x 2]
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
@@ -1135,12 +1135,12 @@ class BertForSequenceClassification_original(BertPreTrainedModel):
 class BertForSequenceClassification_Ss_IDW_original(BertPreTrainedModel):
 
     def __init__(self, config, num_labels=None, tokenizer=None, igw_after_chuli=None):
-        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
+        super(BertForSequenceClassification_Ss_IDW_original, self).__init__(config)
         self.num_labels = num_labels
         self.tokenizer = tokenizer
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size+2, num_labels)
+        self.classifier = nn.Linear(config.hidden_size, num_labels)
         self.apply(self.init_bert_weights)
         self.igw = igw_after_chuli
 
@@ -1176,6 +1176,8 @@ class BertForSequenceClassification_Ss_IDW_original(BertPreTrainedModel):
 
         IDW.to(device)
         Ss.to(device)
+        #print('pooled_output: ', pooled_output.size())
+        # pooled_output:  torch.Size([8, 768])
         pooled_output = torch.cat([pooled_output, Ss, IDW], dim=1)
         logits = self.classifier(pooled_output)
 

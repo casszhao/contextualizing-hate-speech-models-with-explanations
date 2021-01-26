@@ -363,17 +363,17 @@ def main():
         # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
         #                                                       cache_dir=cache_dir,
         #                                                       num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
+        model = BertForSequenceClassification_Ss_IDW_original.from_pretrained(args.bert_model,
                                                                      cache_dir=cache_dir,
                                                                      num_labels=num_labels,
                                                                      igw_after_chuli=igw_after_chuli,
-                                                                     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True),
+                                                                     #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True),
                                                                      )
 
 
     else:
         #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels, igw_after_chuli=igw_after_chuli)
+        model = BertForSequenceClassification_Ss_IDW_original.from_pretrained(args.output_dir, num_labels=num_labels, igw_after_chuli=igw_after_chuli)
 
     model.to(device)
 
