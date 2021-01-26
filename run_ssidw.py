@@ -331,33 +331,34 @@ def main():
 
     words_csv_file = args.neutral_words_file
 
-    def csv2txt(words_csv_file):
+    def csv2set(words_csv_file):
         data = pd.read_csv(words_csv_file, sep='\t', header=None)
 
-        # print(data.head(4))
-        identity = data[0].tolist()
+        identifiers_set = set(data[0].tolist())
+        # with open('./idw.txt', 'a') as f:
+        #     for line in identity:
+        #         f.write("%s\n" % line)
+        return identifiers_set
 
-        with open('./idw.txt', 'a') as f:
-            for line in identity:
-                f.write("%s\n" % line)
 
+    igw_after_chuli = csv2set(words_csv_file)
+    print('identifiers set (igw_after_chuli): ', igw_after_chuli)
+    # def read_igw():
+    #     f = open('./idw.txt', 'r')
+    #     line = f.readline()
+    #     res = set()
+    #     while line:
+    #         line = f.readline().strip()
+    #         if line.startswith("#") or len(line) == 0:
+    #             continue
+    #         res.add(line)
+    #     print(' identifiers')
+    #     print(res)
+    #     return res
+    #
+    # igw_after_chuli = read_igw()
+    # print(igw_after_chuli.type())
 
-    csv2txt(words_csv_file)
-
-    def read_igw():
-        f = open('./idw.txt', 'r')
-        line = f.readline()
-        res = set()
-        while line:
-            line = f.readline().strip()
-            if line.startswith("#") or len(line) == 0:
-                continue
-            res.add(line)
-        print(' identifiers')
-        print(res)
-        return res
-
-    igw_after_chuli = read_igw()
 
     if args.do_train:
         # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
