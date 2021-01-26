@@ -642,8 +642,8 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     elif output_mode == "regression":
         pred_labels = np.squeeze(preds)
     pred_prob = F.softmax(torch.from_numpy(preds).float(), -1).numpy()
-    print('pred_labels', pred_labels)
-    print('all_label_ids.numpy()', all_label_ids.numpy())
+    #print('pred_labels', pred_labels)
+    #print('all_label_ids.numpy()', all_label_ids.numpy())
     result = compute_metrics(task_name, pred_labels, all_label_ids.numpy(), pred_prob)
     loss = tr_loss / (global_step + 1e-10) if args.do_train else None
 
@@ -672,9 +672,9 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         for i, seq in enumerate(input_seqs):
             pred = preds[i]
             gt = all_label_ids[i]
-            print('before pred_labels[i]', pred_labels)
-            pred_labels = pred_labels[i]
-            writer.write('{}\t{}\t{}\t{}\n'.format(gt, pred_labels, pred, seq))
+            #print('before pred_labels[i]', pred_labels)
+            prediction = pred_labels[i]
+            writer.write('{}\t{}\t{}\t{}\n'.format(gt, prediction, pred, seq))
 
     model.train(True)
     return result
