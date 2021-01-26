@@ -481,7 +481,7 @@ def main():
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids = batch
 
-                # define a new function to compute loss values for both output_modes
+                # Not feed label to get logits
                 logits = model(input_ids, segment_ids, input_mask, labels=None, device=device)
 
                 if output_mode == "classification":
@@ -647,7 +647,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     result['loss'] = loss
 
     split = 'dev' if not args.test else 'test'
-
+    # write results file
     output_eval_file = os.path.join(args.output_dir, "eval_results_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
     with open(output_eval_file, "w") as writer:
@@ -657,6 +657,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
             logger.info("  %s = %s", key, str(result[key]))
             writer.write("%s = %s\n" % (key, str(result[key])))
 
+    # write details file
     output_detail_file = os.path.join(args.output_dir, "eval_details_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
     with open(output_detail_file,'w') as writer:

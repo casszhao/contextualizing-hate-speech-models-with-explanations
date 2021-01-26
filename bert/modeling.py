@@ -1001,7 +1001,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
 # new ss idw, add one ss dimension after embeddings layers and add one additional dimension in the mask
 class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
-    def __init__(self, config, num_labels=None, tokenizer=None, igw_after_chuli=None):
+    def __init__(self, BertEmbeddingsconfig, num_labels=None, tokenizer=None, igw_after_chuli=None):
         super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
         self.num_labels = num_labels
         self.tokenizer = tokenizer
@@ -1080,8 +1080,6 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
 
         # 处理 attention mask
-        print(IDW.type()) # torch.cuda.FloatTensor   need to convert to .cuda.LongTensor
-        print(attention_mask.type()) #torch.cuda.LongTensor
         attention_mask = torch.cat([attention_mask, IDW], dim=1)  # [32, 128] [32, 1] --> [32, 129]
         extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2) # [32, 129] --> [32, 1, 1, 129]
         extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
@@ -1097,6 +1095,7 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
         pooled_output = self.dropout(pooled_output).to(device)
 
+        print('pooled_output size: ', pooled_output.size())
         logits = self.classifier(pooled_output)
         if labels is not None:
             loss_fct = CrossEntropyLoss()
