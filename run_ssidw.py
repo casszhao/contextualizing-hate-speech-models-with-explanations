@@ -529,6 +529,9 @@ def main():
                     global_step += 1
 
                 if global_step % args.validate_steps == 0:
+                    print('global_step: %d' % global_step)
+                    print('args.test: %s' % str(args.test))
+
                     val_result = validate(args, model, processor, tokenizer, output_mode, label_list, device,
                                           num_labels,
                                           task_name, tr_loss, global_step, epoch, explainer)
@@ -552,6 +555,7 @@ def main():
     if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
         if not args.explain:
             args.test = True
+            print('Test_args.test: %s' % str(args.test))
             validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
                      task_name, tr_loss, global_step=0, epoch=-1, explainer=explainer)
         else:
