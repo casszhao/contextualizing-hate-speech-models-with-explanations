@@ -678,6 +678,9 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
             gt = all_label_ids[i]
             #print('before pred_labels[i]', pred_labels)
             prediction = pred_labels[i]
+            print('gt: %s' % str(gt))
+            print('pred_labels: %s' % str(pred_labels))
+            print('prediction: %s' % str(prediction))
             writer.write('{}\t{}\t{}\t{}\n'.format(gt, prediction, pred, seq))
 
     model.train(True)
