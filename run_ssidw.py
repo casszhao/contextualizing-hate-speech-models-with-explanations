@@ -342,7 +342,7 @@ def main():
 
 
     igw_after_chuli = csv2set(words_csv_file)
-    print('identifiers set (igw_after_chuli): ', igw_after_chuli)
+    #print('identifiers set (igw_after_chuli): ', igw_after_chuli)
     # def read_igw():
     #     f = open('./idw.txt', 'r')
     #     line = f.readline()
@@ -529,8 +529,8 @@ def main():
                     global_step += 1
 
                 if global_step % args.validate_steps == 0:
-                    print('global_step: %d' % global_step)
-                    print('args.test: %s' % str(args.test))
+                    #print('global_step: %d' % global_step)
+                    #print('args.test: %s' % str(args.test)) #args.test: False
 
                     val_result = validate(args, model, processor, tokenizer, output_mode, label_list, device,
                                           num_labels,
@@ -555,7 +555,7 @@ def main():
     if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
         if not args.explain:
             args.test = True
-            print('Test_args.test: %s' % str(args.test))
+            #print('Test_args.test: %s' % str(args.test)) #Test_args.test: True
             validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
                      task_name, tr_loss, global_step=888, epoch=-1, explainer=explainer)
         else:
@@ -568,7 +568,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         eval_examples = processor.get_dev_examples(args.data_dir)
     else:
         eval_examples = processor.get_test_examples(args.data_dir)
-        print('using test dataset')
+        #print('using test dataset')
     eval_features = convert_examples_to_features(
         eval_examples, label_list, args.max_seq_length, tokenizer, output_mode, configs)
     logger.info("***** Running evaluation *****")
@@ -678,9 +678,9 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
             gt = all_label_ids[i]
             #print('before pred_labels[i]', pred_labels)
             prediction = pred_labels[i]
-            print('gt: %s' % str(gt))
-            print('pred_labels: %s' % str(pred_labels))
-            print('prediction: %s' % str(prediction))
+            #print('gt: %s' % str(gt))                    tensor(0)
+            #print('pred_labels: %s' % str(pred_labels))  [0 0 1 ... 0 1 0]
+            #print('prediction: %s' % str(prediction))    0
             writer.write('{}\t{}\t{}\t{}\n'.format(gt, prediction, pred, seq))
 
     model.train(True)
