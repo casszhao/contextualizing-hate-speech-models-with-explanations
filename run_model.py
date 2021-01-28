@@ -502,14 +502,25 @@ def main():
 
             # training finish ############################
 
-    if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
-        if not args.explain:
-            args.test = True
-            validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
-                     task_name, tr_loss, global_step=0, epoch=-1, explainer=explainer)
-        else:
-            args.test = True
-            explain(args, model, processor, tokenizer, output_mode, label_list, device)
+    # if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
+    #     if not args.explain:
+    #         args.test = True
+    #         validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
+    #                  task_name, tr_loss, global_step=0, epoch=-1, explainer=explainer)
+    #     else:
+    #         args.test = True
+    #         explain(args, model, processor, tokenizer, output_mode, label_list, device)
+    if not args.explain:
+        args.test = True
+        print('--Test_args.test: %s' % str(args.test)) #Test_args.test: True
+        validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
+                 task_name, tr_loss, global_step=888, epoch=-1, explainer=explainer)
+        args.test = False
+    else:
+        print('--Test_args.test: %s' % str(args.test))  # Test_args.test: True
+        args.test = True
+        explain(args, model, processor, tokenizer, output_mode, label_list, device)
+        args.test = False
 
 
 def validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
@@ -615,13 +626,15 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
             logger.info("  %s = %s", key, str(result[key]))
             writer.write("%s = %s\n" % (key, str(result[key])))
 
+
     output_detail_file = os.path.join(args.output_dir, "eval_details_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
     with open(output_detail_file,'w') as writer:
         for i, seq in enumerate(input_seqs):
             pred = preds[i]
             gt = all_label_ids[i]
-            writer.write('{}\t{}\t{}\n'.format(gt, pred, seq))
+            prediction = pred_labels[i]
+            writer.write('{}\t{}\t{}\t{}\n'.format(gt, prediction, pred, seq))
 
     model.train(True)
     return result

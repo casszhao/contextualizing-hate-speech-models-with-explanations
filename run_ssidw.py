@@ -552,16 +552,29 @@ def main():
                 break
             epoch += 1
 
-    if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
-        if not args.explain:
-            args.test = True
-            print('--Test_args.test: %s' % str(args.test)) #Test_args.test: True
-            validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
-                     task_name, tr_loss, global_step=888, epoch=-1, explainer=explainer)
-        else:
-            print('--Test_args.test: %s' % str(args.test))  # Test_args.test: True
-            args.test = True
-            explain(args, model, processor, tokenizer, output_mode, label_list, device)
+    # if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
+    #     if not args.explain:
+    #         args.test = True
+    #         print('--Test_args.test: %s' % str(args.test)) #Test_args.test: True
+    #         validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
+    #                  task_name, tr_loss, global_step=888, epoch=-1, explainer=explainer)
+    #     else:
+    #         print('--Test_args.test: %s' % str(args.test))  # Test_args.test: True
+    #         args.test = True
+    #         explain(args, model, processor, tokenizer, output_mode, label_list, device)
+
+
+    if not args.explain:
+        args.test = True
+        print('--Test_args.test: %s' % str(args.test)) #Test_args.test: True
+        validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
+                 task_name, tr_loss, global_step=888, epoch=-1, explainer=explainer)
+        args.test = False
+    else:
+        print('--Test_args.test: %s' % str(args.test))  # Test_args.test: True
+        args.test = True
+        explain(args, model, processor, tokenizer, output_mode, label_list, device)
+        args.test = False
 
 
 def validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
@@ -571,8 +584,8 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     else:
         eval_examples = processor.get_test_examples(args.data_dir)
         #print('using test dataset')
-    eval_features = convert_examples_to_features(
-        eval_examples, label_list, args.max_seq_length, tokenizer, output_mode, configs)
+    eval_features = convert_examples_to_features(eval_examples, label_list, args.max_seq_length,
+                                                 tokenizer, output_mode, configs)
     logger.info("***** Running evaluation *****")
     logger.info("  Num examples = %d", len(eval_examples))
     logger.info("  Batch size = %d", args.eval_batch_size)
@@ -659,6 +672,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     result['loss'] = loss
 
     split = 'dev' if not args.test else 'test'
+
     # write results file
     output_eval_file = os.path.join(args.output_dir, "eval_results_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
@@ -672,17 +686,11 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     # write details file
     output_detail_file = os.path.join(args.output_dir, "eval_details_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
-
-
     with open(output_detail_file,'w') as writer:
         for i, seq in enumerate(input_seqs):
             pred = preds[i]
             gt = all_label_ids[i]
-            #print('before pred_labels[i]', pred_labels)
             prediction = pred_labels[i]
-            #print('gt: %s' % str(gt))                    tensor(0)
-            #print('pred_labels: %s' % str(pred_labels))  [0 0 1 ... 0 1 0]
-            #print('prediction: %s' % str(prediction))    0
             writer.write('{}\t{}\t{}\t{}\n'.format(gt, prediction, pred, seq))
 
     model.train(True)
