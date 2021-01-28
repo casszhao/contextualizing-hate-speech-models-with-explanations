@@ -508,6 +508,7 @@ def main():
             validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
                      task_name, tr_loss, global_step=0, epoch=-1, explainer=explainer)
         else:
+            args.test = True
             explain(args, model, processor, tokenizer, output_mode, label_list, device)
 
 
