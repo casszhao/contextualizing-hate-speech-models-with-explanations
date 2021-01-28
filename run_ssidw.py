@@ -25,7 +25,7 @@ Integrated with SOC explanation regularization
 
 from torch.nn import CrossEntropyLoss, MSELoss
 from scipy.stats import pearsonr, spearmanr
-from sklearn.metrics import matthews_corrcoef, f1_score
+from sklearn.metrics import matthews_corrcoef, f1_score, confusion_matrix, classification_report
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
 
 from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
@@ -661,15 +661,32 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     elif output_mode == "regression":
         pred_labels = np.squeeze(preds)
     pred_prob = F.softmax(torch.from_numpy(preds).float(), -1).numpy()
-    #print('pred_labels', pred_labels)
-    #print('all_label_ids.numpy()', all_label_ids.numpy())
     result = compute_metrics(task_name, pred_labels, all_label_ids.numpy(), pred_prob)
+    # return {
+    #         "acc": acc,
+    #         "f1": f1,
+    #         "precision": p,
+    #         "recall": r,
+    #         "auc_roc": roc
+    #     }
     loss = tr_loss / (global_step + 1e-10) if args.do_train else None
 
     result['eval_loss'] = eval_loss
     result['eval_loss_reg'] = eval_loss_reg
     result['global_step'] = global_step
     result['loss'] = loss
+
+    if global_step == 888:
+        confusion_matrix = confusion_matrix(all_label_ids.numpy(), pred_labels)
+        TN = confusion_matrix[0][0]
+        FN = confusion_matrix[1][0]
+        TP = confusion_matrix[1][1]
+        FP = confusion_matrix[0][1]
+
+        result['True Negative'] = TN
+        result['False Negative'] = FN
+        result['True Positive'] = TP
+        result['False Positive'] = FP
 
     split = 'dev' if not args.test else 'test'
 
