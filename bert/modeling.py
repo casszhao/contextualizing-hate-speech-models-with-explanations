@@ -1073,8 +1073,8 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         # Sizes are [batch_size, 1, 1, to_seq_length]
 
         # torch.Size([32, 1, 1, 128])
-        # IDW.to(device)
-        # Ss.to(device)
+        IDW.to(device)
+        Ss.to(device)
         #
         # # 处理 embedding output
         # embedding_output.to(device)
