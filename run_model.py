@@ -615,6 +615,18 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
     result['global_step'] = global_step
     result['loss'] = loss
 
+    if global_step == 888:
+        CM = confusion_matrix(all_label_ids.numpy(), pred_labels)
+        TN = CM[0][0]
+        FN = CM[1][0]
+        TP = CM[1][1]
+        FP = CM[0][1]
+
+        result['True Negative'] = TN
+        result['False Negative'] = FN
+        result['True Positive'] = TP
+        result['False Positive'] = FP
+
     split = 'dev' if not args.test else 'test'
 
     output_eval_file = os.path.join(args.output_dir, "eval_results_%d_%s_%s.txt"
