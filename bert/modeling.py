@@ -1073,14 +1073,13 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
         # Sizes are [batch_size, 1, 1, to_seq_length]
 
         # torch.Size([32, 1, 1, 128])
-        #IDW = IDW.to(device)
-        print('ss output device 111:', Ss.device, Ss.device.index)
+        IDW = IDW.to(torch.device("cuda"))
         Ss = Ss.to(torch.device("cuda"))
         #
         # # 处理 embedding output
         # embedding_output.to(device)
-        print('embedding output device', embedding_output.device, embedding_output.device.index)
-        print('ss output device', Ss.device, Ss.device.index)
+        # print('embedding output device', embedding_output.device, embedding_output.device.index)
+        # print('ss output device', Ss.device, Ss.device.index)
         embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
 
         # 处理 attention mask
