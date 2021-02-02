@@ -342,40 +342,22 @@ def main():
 
 
     igw_after_chuli = csv2set(words_csv_file)
-    #print('identifiers set (igw_after_chuli): ', igw_after_chuli)
-    # def read_igw():
-    #     f = open('./idw.txt', 'r')
-    #     line = f.readline()
-    #     res = set()
-    #     while line:
-    #         line = f.readline().strip()
-    #         if line.startswith("#") or len(line) == 0:
-    #             continue
-    #         res.add(line)
-    #     print(' identifiers')
-    #     print(res)
-    #     return res
-    #
-    # igw_after_chuli = read_igw()
-    # print(igw_after_chuli.type())
-
 
     if args.do_train:
-        # model = BertForSequenceClassification_Ss.from_pretrained(args.bert_model,
-        #                                                       cache_dir=cache_dir,
-        #                                                       num_labels=num_labels)
         model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
                                                                      cache_dir=cache_dir,
                                                                      num_labels=num_labels,
                                                                      igw_after_chuli=igw_after_chuli,
-                                                                     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True),
+                                                                     tokenizer=BertTokenizer.from_pretrained(
+                                                                         'bert-base-uncased', do_lower_case=True),
                                                                      )
 
 
     else:
-        #model = BertForSequenceClassification_Ss.from_pretrained(args.output_dir, num_labels=num_labels)
-        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels, igw_after_chuli=igw_after_chuli,
-                                                                     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True),
+        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels,
+                                                                     igw_after_chuli=igw_after_chuli,
+                                                                     tokenizer=BertTokenizer.from_pretrained(
+                                                                         'bert-base-uncased', do_lower_case=True),
                                                                      )
 
     model.to(device)
@@ -533,8 +515,7 @@ def main():
                     #print('args.test: %s' % str(args.test)) #args.test: False
 
                     val_result = validate(args, model, processor, tokenizer, output_mode, label_list, device,
-                                          num_labels,
-                                          task_name, tr_loss, global_step, epoch, explainer)
+                                          num_labels, task_name, tr_loss, global_step, epoch, explainer)
                     val_acc, val_f1 = val_result['acc'], val_result['f1']
                     if val_f1 > val_best_f1:
                         val_best_f1 = val_f1
@@ -662,13 +643,6 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         pred_labels = np.squeeze(preds)
     pred_prob = F.softmax(torch.from_numpy(preds).float(), -1).numpy()
     result = compute_metrics(task_name, pred_labels, all_label_ids.numpy(), pred_prob)
-    # return {
-    #         "acc": acc,
-    #         "f1": f1,
-    #         "precision": p,
-    #         "recall": r,
-    #         "auc_roc": roc
-    #     }
     loss = tr_loss / (global_step + 1e-10) if args.do_train else None
 
     result['eval_loss'] = eval_loss

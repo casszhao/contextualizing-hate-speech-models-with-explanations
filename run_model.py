@@ -322,10 +322,9 @@ def main():
     cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE),
                                                                    'distributed_{}'.format(args.local_rank))
     if args.do_train:
-
         model = BertForSequenceClassification.from_pretrained(args.bert_model,
-                                                                 cache_dir=cache_dir,
-                                                                 num_labels=num_labels)
+                                                              cache_dir=cache_dir,
+                                                              num_labels=num_labels)
 
 
     else:
@@ -510,7 +509,9 @@ def main():
     #     else:
     #         args.test = True
     #         explain(args, model, processor, tokenizer, output_mode, label_list, device)
+    print('args.explain   ', args.explain)
     if not args.explain:
+        print(' go not args.explain   ', args.explain)
         args.test = True
         print('--Test_args.test: %s' % str(args.test)) #Test_args.test: True
         validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
