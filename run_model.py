@@ -25,7 +25,7 @@ Integrated with SOC explanation regularization
 from torch.nn import CrossEntropyLoss, MSELoss
 from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import matthews_corrcoef, f1_score
-from sklearn.metrics import precision_score, recall_score, roc_auc_score
+from sklearn.metrics import precision_score, recall_score, roc_auc_score, confusion_matrix
 
 from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
 from bert.modeling import BertForSequenceClassification, BertConfig
@@ -509,9 +509,7 @@ def main():
     #     else:
     #         args.test = True
     #         explain(args, model, processor, tokenizer, output_mode, label_list, device)
-    print('args.explain   ', args.explain)
     if not args.explain:
-        print(' go not args.explain   ', args.explain)
         args.test = True
         print('--Test_args.test: %s' % str(args.test)) #Test_args.test: True
         validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
