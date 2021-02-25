@@ -346,7 +346,7 @@ def main():
     igw_after_chuli = csv2set(words_csv_file)
 
     if args.do_train:
-        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
+        model = BertForSequenceClassification_Ss_IDW_mean.from_pretrained(args.bert_model,
                                                                      cache_dir=cache_dir,
                                                                      num_labels=num_labels,
                                                                      igw_after_chuli=igw_after_chuli,
@@ -356,7 +356,7 @@ def main():
 
 
     else:
-        model = BertForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels,
+        model = BertForSequenceClassification_Ss_IDW_mean.from_pretrained(args.output_dir, num_labels=num_labels,
                                                                      igw_after_chuli=igw_after_chuli,
                                                                      tokenizer=BertTokenizer.from_pretrained(
                                                                          'bert-base-uncased', do_lower_case=True),

@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader, Dataset
 import torch
 import csv
 
-class WSProcessor(DataProcessor):
+class multiclass_Processor(DataProcessor):
     """
     Data processor using DataProcessor class provided by BERT
     """

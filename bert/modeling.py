@@ -1042,9 +1042,10 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
             sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
             new_sent = ''
             for word in sent:
+                print(word)
                 if word != '[PAD]':
                     new_sent = new_sent + word + ' '
-
+            break
             blob = TextBlob(new_sent)
             subjective = blob.sentiment.subjectivity
             Ss[i, 0, :] = subjective
@@ -1101,6 +1102,121 @@ class BertForSequenceClassification_Ss_IDW(BertPreTrainedModel):
 
         pooled_output = self.dropout(pooled_output).to(device)
         # pooled_output size:  torch.Size([8, 768])
+        logits = self.classifier(pooled_output) # self.classifier = nn.Linear(config.hidden_size+1, num_labels)
+                                                # size mismatch, m1: [32 x 768], m2: [769 x 2]
+        if labels is not None:
+            loss_fct = CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            return loss
+        else:
+            return logits
+
+class BertForSequenceClassification_Ss_IDW_mean(BertPreTrainedModel):
+
+    def __init__(self, config, num_labels=None, tokenizer=None, igw_after_chuli=None):
+        super(BertForSequenceClassification_Ss_IDW, self).__init__(config)
+        self.num_labels = num_labels
+        self.tokenizer = tokenizer
+
+        #self.bert = BertModel(config)
+        self.embeddings = BertEmbeddings(config)
+        self.encoder = BertEncoder(config)
+        self.pooler = BertPooler(config)
+
+
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.classifier = nn.Linear(config.hidden_size, num_labels)
+        self.apply(self.init_bert_weights)
+        self.igw = igw_after_chuli
+
+    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None, device=None,
+                output_all_encoded_layers=True):
+
+        #_, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
+        if attention_mask is None:
+            attention_mask = torch.ones_like(input_ids).to(device)
+        if token_type_ids is None:
+            token_type_ids = torch.zeros_like(input_ids).to(device)
+
+
+        if len(input_ids.size()) == 2:
+            embedding_output = self.embeddings(input_ids, token_type_ids)
+        else:
+            embedding_output = input_ids
+        # embedding size [32, 128, 768]
+
+
+        inputids_first_dimension = embedding_output.size()[0]  # batch size
+        hidden_dimensions = embedding_output.size()[2]
+        Ss = torch.empty(inputids_first_dimension, 1, hidden_dimensions).to(device) # e.g. [32, 1, 768]
+        IDW = torch.empty([inputids_first_dimension, 1], dtype=torch.long).to(device)
+        for i, the_id in enumerate(input_ids):
+            sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
+            new_sent = ''
+            for word in sent:
+                if word != '[PAD]':
+                    new_sent = new_sent + word + ' '
+
+            blob = TextBlob(new_sent)
+            subjective = blob.sentiment.subjectivity
+            Ss[i, 0, :] = subjective
+            # Ss size [32, 1, 768]
+
+            sent = [x.lower() for x in sent]
+            words = set(sent)
+            inter = words.intersection(self.igw)
+            if len(inter) > 0:
+                IDW[i, 0] = 1
+            elif len(inter) == 0:
+                IDW[i, 0] = 0
+            # IDW size [32, 1]
+            # if extended_attention_mask size = [32, 128]
+
+
+        #得到embeddings output + extended_attention_mask
+        #要修改 embedding_output, extended_attention_mask 然后正常传入即可self.encoder()
+
+        # comments from the transformer source code:
+        # We can provide a self-attention mask of dimensions [batch_size, from_seq_length, to_seq_length]
+        # ourselves in which case we just need to make it broadcastable to all heads.
+        # If a 2D or 3D attention mask is provided for the cross-attention
+        # we need to make broadcastable to [batch_size, num_heads, seq_length, seq_length]
+        # extended_attention_mask size : torch.Size([32, 1, 1, 128])
+        # Sizes are [batch_size, 1, 1, to_seq_length]
+
+        # torch.Size([32, 1, 1, 128])
+        IDW = IDW.to(torch.device("cuda"))
+        Ss = Ss.to(torch.device("cuda"))
+        #
+        # # 处理 embedding output
+        # embedding_output.to(device)
+        # print('embedding output device', embedding_output.device, embedding_output.device.index)
+        # print('ss output device', Ss.device, Ss.device.index)
+        embedding_output = torch.cat([embedding_output, Ss], dim=1) # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
+
+        # 处理 attention mask
+        attention_mask = torch.cat([attention_mask, IDW], dim=1)  # [32, 128] [32, 1] --> [32, 129]
+        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2) # [32, 129] --> [32, 1, 1, 129]
+        extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
+        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
+
+        # 进 encoder
+        encoder_output = self.encoder(embedding_output,
+                                      extended_attention_mask,
+                                      output_all_encoded_layers=output_all_encoded_layers)
+        # encoder_output is a list of length, length:  12 and each element inside the list is size of torch.Size([batch_size, 129, 768])
+
+
+        sequence_output = encoder_output[-1]
+        # sequence_output.size:  torch.Size([batch_size, 129, 768])
+
+
+        pooled_output = self.pooler(sequence_output)
+        # pooled_output.size:  torch.Size([batch_size, 768])
+
+
+        pooled_output = self.dropout(pooled_output).to(device)
+        # pooled_output size:  torch.Size([batch_size, 768])
         logits = self.classifier(pooled_output) # self.classifier = nn.Linear(config.hidden_size+1, num_labels)
                                                 # size mismatch, m1: [32 x 768], m2: [769 x 2]
         if labels is not None:

@@ -32,7 +32,7 @@ from bert.modeling import BertForSequenceClassification, BertConfig
 from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 
-from loader import GabProcessor, WSProcessor, NytProcessor, convert_examples_to_features
+from loader import GabProcessor, WSProcessor, NytProcessor, convert_examples_to_features,multiclass_Processor,multilabel_Processor
 from utils.config import configs, combine_args
 
 # for hierarchical explanation algorithms
@@ -246,7 +246,9 @@ def main():
     processors = {
         'gab': GabProcessor,
         'ws': WSProcessor,
-        'nyt': NytProcessor
+        'nyt': NytProcessor,
+        'multi-class': multiclass_Processor,
+        'multi-label': multilabel_Processor,
     }
 
     output_modes = {

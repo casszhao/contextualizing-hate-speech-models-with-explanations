@@ -41,7 +41,6 @@ def txt2csv(path, new_csv_name):
         "text": text
     })
 
-    df = df[~df['text'].str.contains("muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
 
     df.to_csv(new_csv_name, sep=',', index=False)
     #print(df)
@@ -51,51 +50,37 @@ def txt2csv(path, new_csv_name):
 
 def addinfo(data_name, data_path):
     print(data_name)
-    df = pd.read_csv(data_path, usecols=['text','label','prediction'] ) #, nrows=200
+    df = pd.read_csv(data_path, usecols=['text','is_hate'], sep='\t') #, nrows=200
+    df = df[~df['text'].str.contains(
+        "muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
+    print(len(df))
     bb_subjective =[]
+    bb_polarity = []
     for sent in df['text']:
         blob = TextBlob(sent)
-        subjective = blob.sentiment.subjectivity
-        # polarity = blob.sentiment.polarity
-        #bb_polarity.append(polarity)
-        bb_subjective.append(subjective)
-    df['Subjective Score'] = bb_subjective
+        #subjective = blob.sentiment.subjectivity
+        polarity = blob.sentiment.polarity
+        bb_polarity.append(polarity)
+        #bb_subjective.append(subjective)
+    df['Sentimental Polarity'] = bb_polarity
     df['Data'] = data_name
 
-    def results_tpye(row):
-        if (row['label'] == 1 and row['prediction'] == 1):
-            return 'True Positive'
-        if row['label'] == 0 and row['prediction'] == 1:
-            return 'False Positive'
-        if row['label'] == 0 and row['prediction'] == 0:
-            return 'True Negative'
-        if row['label'] == 1 and row['prediction'] == 0:
-            return 'False Negative'
-        return 'Other'
-    df['Result'] = df.apply(lambda row: results_tpye(row), axis=1)
-    df = df.loc[(df['Result'] == 'True Positive') | (df['Result'] == 'False Positive')]
-    print(df['Result'].value_counts())
-    # only keep 'True Positive' and 'False Positive'
     return df
 
-def combine_all_process(data_name, txt_path, csv_path):
-    df = txt2csv(txt_path, csv_path)
-    df_Ss = addinfo(data_name, csv_path)
-    return df_Ss
 
 
-D1 = combine_all_process('WS', './results/ws_bert_9.txt', './results/ws_bert_9_plot.csv')
+D1 = addinfo('WS', './data/white_supremacy/train.tsv')
 #D2 = combine_all_process('AG10K', './results/AG10K_bert.txt', './results/AG10K_bert.csv')
-D3 = combine_all_process('Twitter 15k', './results/wassem_bert_0.txt', './results/wassem_bert_0_plot.csv')
-D4 = combine_all_process('Twitter 50k', './results/tweet50k_bert_9.txt', './results/tweet50k_bert_9_plot.csv')
-D5 = combine_all_process('Wiki', './results/mt_bert_0.txt', './results/mt_bert_0_plot.csv')
+D3 = addinfo('Twitter 15k', './data/wassem/train.tsv')
+D4 = addinfo('Twitter 50k', './data/tweet50k/train.tsv')
+D5 = addinfo('Wiki', './data/multi-label/train.tsv')
 frames = [D1, D3, D4, D5]
 
 # label, text, Prediction, Subjective Score, Data, Result
 df = pd.concat(frames)
 
 sns.set_theme(style="whitegrid")
-ax = sns.boxplot(x="Data", y="Subjective Score", hue="Result",
+ax = sns.boxplot(x="Data", y="Sentimental Polarity", hue="is_hate",
                  data=df, palette="Set3")
 # ax.despine(left=True)
 # plt.legend(loc='upper left')
