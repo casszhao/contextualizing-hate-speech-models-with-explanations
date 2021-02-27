@@ -32,7 +32,7 @@ from bert.modeling import BertForSequenceClassification, BertConfig
 from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 
-from loader import GabProcessor, WSProcessor, NytProcessor, convert_examples_to_features,multiclass_Processor,multilabel_Processor
+from loader import GabProcessor, WSProcessor, NytProcessor, convert_examples_to_features #,multiclass_Processor,multilabel_Processor
 from utils.config import configs, combine_args
 
 # for hierarchical explanation algorithms
