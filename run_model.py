@@ -247,8 +247,8 @@ def main():
         'gab': GabProcessor,
         'ws': WSProcessor,
         'nyt': NytProcessor,
-        'multi-class': multiclass_Processor,
-        'multi-label': multilabel_Processor,
+        #'multi-class': multiclass_Processor,
+        #'multi-label': multilabel_Processor,
     }
 
     output_modes = {
