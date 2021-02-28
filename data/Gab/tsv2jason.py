@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import json
 import numpy as np
 
 # csv = pd.read_csv('./GabHateCorpus_annotations.tsv', sep='\t')
@@ -70,8 +71,13 @@ for index, row in train.iterrows():
     df_dict['vo'] = row['VO']
     df_dict['idl'] = row['IDL']
 
+
+
+
     with open('../majority_gab_dataset_25k/train.jsonl','a') as f:
-        f.write("%s\n" % str(df_dict))
+        # f.write("%s\n" % str(df_dict))
+        f.write("%s\n" % str(json.dumps(df_dict)))
+
 
 for index, row in validation.iterrows():
     df_dict = {}
@@ -92,7 +98,7 @@ for index, row in validation.iterrows():
     df_dict['idl'] = row['IDL']
 
     with open('../majority_gab_dataset_25k/dev.jsonl','a') as f:
-        f.write("%s\n" % str(df_dict))
+        f.write("%s\n" % str(json.dumps(df_dict)))
 
 for index, row in test.iterrows():
     df_dict = {}
@@ -113,4 +119,4 @@ for index, row in test.iterrows():
     df_dict['idl'] = row['IDL']
 
     with open('../majority_gab_dataset_25k/test.jsonl','a') as f:
-        f.write("%s\n" % str(df_dict))
+        f.write("%s\n" % str(json.dumps(df_dict)))
