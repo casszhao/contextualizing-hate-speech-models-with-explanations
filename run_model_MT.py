@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import argparse
-import csv
+#import csv
 import logging
 import os
 import random
@@ -9,7 +9,6 @@ import sys
 import json
 
 import numpy as np
-import pandas as pd
 import torch
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
@@ -25,15 +24,15 @@ Integrated with SOC explanation regularization
 
 from torch.nn import CrossEntropyLoss, MSELoss
 from scipy.stats import pearsonr, spearmanr
-from sklearn.metrics import matthews_corrcoef, f1_score, confusion_matrix, classification_report
-from sklearn.metrics import precision_score, recall_score, roc_auc_score
+from sklearn.metrics import matthews_corrcoef, f1_score
+from sklearn.metrics import precision_score, recall_score, roc_auc_score, confusion_matrix
 
 from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss_IDW, BertForSequenceClassification_Ss_IDW_mean
+from bert.modeling import BertForSequenceClassification, BertConfig
 from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 
-from loader import GabProcessor, WSProcessor, NytProcessor, convert_examples_to_features #,,multiclass_Processor, multilabel_Processor
+from loader import GabProcessor, WSProcessor, NytProcessor, convert_examples_to_features #,multiclass_Processor,multilabel_Processor
 from utils.config import configs, combine_args
 
 # for hierarchical explanation algorithms
@@ -194,10 +193,6 @@ def main():
                         default=200,
                         type=int,
                         help="validate once for how many steps")
-    parser.add_argument("--alpha",
-                        default=0.5,
-                        type=float,
-                        help="multi task hypeparameter")
     parser.add_argument("--learning_rate",
                         default=5e-5,
                         type=float,
@@ -252,7 +247,7 @@ def main():
         'gab': GabProcessor,
         'ws': WSProcessor,
         'nyt': NytProcessor,
-        #'multi-class': multiclass_Processor,
+        'MT': MTProcessor,
         #'multi-label': multilabel_Processor,
     }
 
@@ -328,40 +323,14 @@ def main():
     # Prepare model
     cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE),
                                                                    'distributed_{}'.format(args.local_rank))
-
-
-
-    words_csv_file = args.neutral_words_file
-
-    def csv2set(words_csv_file):
-        data = pd.read_csv(words_csv_file, sep='\t', header=None)
-
-        identifiers_set = set(data[0].tolist())
-        # with open('./idw.txt', 'a') as f:
-        #     for line in identity:
-        #         f.write("%s\n" % line)
-        return identifiers_set
-
-
-    igw_after_chuli = csv2set(words_csv_file)
-
     if args.do_train:
-        model = BertForSequenceClassification_Ss_IDW_mean.from_pretrained(args.bert_model,
-                                                                     cache_dir=cache_dir,
-                                                                     num_labels=num_labels,
-                                                                     igw_after_chuli=igw_after_chuli,
-                                                                     tokenizer=BertTokenizer.from_pretrained(
-                                                                         'bert-base-uncased', do_lower_case=True),
-                                                                     )
+        model = BertForSequenceClassification.from_pretrained(args.bert_model,
+                                                              cache_dir=cache_dir,
+                                                              num_labels=num_labels)
 
 
     else:
-        model = BertForSequenceClassification_Ss_IDW_mean.from_pretrained(args.output_dir, num_labels=num_labels,
-                                                                     igw_after_chuli=igw_after_chuli,
-                                                                     tokenizer=BertTokenizer.from_pretrained(
-                                                                         'bert-base-uncased', do_lower_case=True),
-                                                                     )
-
+        model = BertForSequenceClassification.from_pretrained(args.output_dir, num_labels=num_labels)
     model.to(device)
 
     if args.fp16:
@@ -468,8 +437,8 @@ def main():
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids = batch
 
-                # Not feed label to get logits
-                logits = model(input_ids, segment_ids, input_mask, labels=None, device=device)
+                # define a new function to compute loss values for both output_modes
+                logits = model(input_ids, segment_ids, input_mask, labels=None)
 
                 if output_mode == "classification":
                     loss_fct = CrossEntropyLoss(class_weight)
@@ -513,9 +482,6 @@ def main():
                     global_step += 1
 
                 if global_step % args.validate_steps == 0:
-                    #print('global_step: %d' % global_step)
-                    #print('args.test: %s' % str(args.test)) #args.test: False
-
                     val_result = validate(args, model, processor, tokenizer, output_mode, label_list, device,
                                           num_labels, task_name, tr_loss, global_step, epoch, explainer)
                     val_acc, val_f1 = val_result['acc'], val_result['f1']
@@ -535,18 +501,16 @@ def main():
                 break
             epoch += 1
 
+            # training finish ############################
+
     # if args.do_eval and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
     #     if not args.explain:
     #         args.test = True
-    #         print('--Test_args.test: %s' % str(args.test)) #Test_args.test: True
     #         validate(args, model, processor, tokenizer, output_mode, label_list, device, num_labels,
-    #                  task_name, tr_loss, global_step=888, epoch=-1, explainer=explainer)
+    #                  task_name, tr_loss, global_step=0, epoch=-1, explainer=explainer)
     #     else:
-    #         print('--Test_args.test: %s' % str(args.test))  # Test_args.test: True
     #         args.test = True
     #         explain(args, model, processor, tokenizer, output_mode, label_list, device)
-
-
     if not args.explain:
         args.test = True
         print('--Test_args.test: %s' % str(args.test)) #Test_args.test: True
@@ -566,9 +530,9 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         eval_examples = processor.get_dev_examples(args.data_dir)
     else:
         eval_examples = processor.get_test_examples(args.data_dir)
-        #print('using test dataset')
-    eval_features = convert_examples_to_features(eval_examples, label_list, args.max_seq_length,
-                                                 tokenizer, output_mode, configs)
+
+    eval_features = convert_examples_to_features(
+        eval_examples, label_list, args.max_seq_length, tokenizer, output_mode, configs)
     logger.info("***** Running evaluation *****")
     logger.info("  Num examples = %d", len(eval_examples))
     logger.info("  Batch size = %d", args.eval_batch_size)
@@ -602,7 +566,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         label_ids = label_ids.to(device)
 
         with torch.no_grad():
-            logits = model(input_ids, segment_ids, input_mask, labels=None, device=device)
+            logits = model(input_ids, segment_ids, input_mask, labels=None)
 
         # create eval loss and other metric required by the task
         if output_mode == "classification":
@@ -666,7 +630,6 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
 
     split = 'dev' if not args.test else 'test'
 
-    # write results file
     output_eval_file = os.path.join(args.output_dir, "eval_results_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
     with open(output_eval_file, "w") as writer:
@@ -676,7 +639,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
             logger.info("  %s = %s", key, str(result[key]))
             writer.write("%s = %s\n" % (key, str(result[key])))
 
-    # write details file
+
     output_detail_file = os.path.join(args.output_dir, "eval_details_%d_%s_%s.txt"
                                     % (global_step, split, args.task_name))
     with open(output_detail_file,'w') as writer:

@@ -51,6 +51,7 @@ def txt2csv(path, new_csv_name):
 def addinfo(data_name, data_path):
     print(data_name)
     df = pd.read_csv(data_path, usecols=['text','is_hate'], sep='\t') #, nrows=200
+    # if not contain, use df[df['text']
     df = df[df['text'].str.contains(
         "muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
     print(len(df))
@@ -71,7 +72,9 @@ def addinfo(data_name, data_path):
 D1 = addinfo('WS', './data/white_supremacy/train.tsv')
 #D2 = combine_all_process('AG10K', './results/AG10K_bert.txt', './results/AG10K_bert.csv')
 D3 = addinfo('Twitter 15k', './data/wassem/train.tsv')
+D3.to_csv('d3.csv')
 D4 = addinfo('Twitter 50k', './data/tweet50k/train.tsv')
+D4.to_csv('d4.csv')
 D5 = addinfo('Wiki', './data/multi-label/train.tsv')
 frames = [D1, D3, D4, D5]
 

@@ -3,8 +3,8 @@ import numpy as np
 import re
 from sklearn.metrics import confusion_matrix, classification_report, f1_score
 
-path = './results/ws_bert_9.txt'
-new_csv_name = './results/ws_bert_9.csv'
+path = './results/ws_ssidw_0.txt'
+new_csv_name = './results/ws_ssidw_0.csv'
 def csv2txt(path, new_csv_name):
 
     with open(path, 'r') as f:

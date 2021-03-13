@@ -3,14 +3,14 @@ from torch.utils.data import DataLoader, Dataset
 import torch
 import csv
 
-class multiclass_Processor(DataProcessor):
+class MTProcessor(DataProcessor, label_groups):
     """
     Data processor using DataProcessor class provided by BERT
     """
     def __init__(self, configs, tokenizer=None):
         super().__init__()
         self.data_dir = configs.data_dir
-        self.label_groups = [0,1]
+        self.label_groups = label_groups #[0,1]
         self.tokenizer = tokenizer
         self.max_seq_length = configs.max_seq_length
         self.configs = configs
@@ -30,7 +30,7 @@ class multiclass_Processor(DataProcessor):
         examples = []
         for i, row in enumerate(reader):
             example = InputExample(text_a=row[1], guid='%s-%s' % (split, i))
-            label = int(row[2])
+            label = int(row[2]) # MULTI LABEL CHANGES HERE !!!
             example.label = label
             examples.append(example)
         f.close()
@@ -49,7 +49,7 @@ class multiclass_Processor(DataProcessor):
         raise NotImplementedError
 
     def get_labels(self):
-        return [0,1]
+        return label_groups
 
     def get_features(self, split):
         """
@@ -81,7 +81,7 @@ class multiclass_Processor(DataProcessor):
         :return:
         """
         features = self.get_features(split)
-        dataset = WSDataset(features)
+        dataset = MTDataset(features)
         dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=dotdict_collate)
         return dataloader
 
@@ -89,7 +89,7 @@ class multiclass_Processor(DataProcessor):
         self.tokenizer = tokenizer
 
 
-class WSDataset(Dataset):
+class MTDataset(Dataset):
     """
     torch.utils.Dataset instance for building torch.utils.DataLoader, for training the language model.
     """
