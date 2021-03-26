@@ -1,25 +1,44 @@
 import torch
 #from bert.tokenization import BertTokenizer
-import pandas as pd
+# import pandas as pd
+#
+# df = pd.read_csv('./data/wassem/train.tsv', sep = '\t')
+#
+# # toxic = df['is_hate'].value_counts()
+# print(df['text'].apply(len).mean())
+a = torch.zeros([32, 128])
 
-tensor1 = torch.tensor([[1,1,1],
-                       [2,2,2]])
+shape = a.shape
+
+print(shape)
+print(shape[0])
+
+b = torch.ones([a.shape[0], 1])
 
 
-Ss = torch.empty(5, 1)
-print(Ss.size())
-print(Ss)
-Ss = Ss.unsqueeze(1).unsqueeze(2)
-print(Ss.size())
-IDW = torch.empty([5, 1], dtype=torch.long)
-IDW[0, 0] = 1
-print('IDW', IDW.type())
-stop
-tensor2 = torch.tensor([[0.5],
-            [1]])
+attention_mask = torch.cat([a, b], dim=1)
 
-tensor3 = tensor1 * tensor2
-print(tensor3)
+print(attention_mask)
+print(attention_mask.shape)
+
+# tensor1 = torch.tensor([[1,1,1],
+#                        [2,2,2]])
+#
+#
+# Ss = torch.empty(5, 1)
+# print(Ss.size())
+# print(Ss)
+# Ss = Ss.unsqueeze(1).unsqueeze(2)
+# print(Ss.size())
+# IDW = torch.empty([5, 1], dtype=torch.long)
+# IDW[0, 0] = 1
+# print('IDW', IDW.type())
+# stop
+# tensor2 = torch.tensor([[0.5],
+#             [1]])
+#
+# tensor3 = tensor1 * tensor2
+# print(tensor3)
 
 
 # tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
