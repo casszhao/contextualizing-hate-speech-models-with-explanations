@@ -29,7 +29,7 @@ from sklearn.metrics import matthews_corrcoef, f1_score, confusion_matrix, class
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
 
 from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME
-from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss_IDW, BertForSequenceClassification_Ss_IDW_mean
+from bert.modeling import BertForSequenceClassification, BertConfig, BertForSequenceClassification_Ss, BertForSequenceClassification_Ss_IDW_mean
 from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 
