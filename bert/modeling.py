@@ -1264,7 +1264,7 @@ class BertForSequenceClassification_Ss(BertPreTrainedModel):
         hidden_dimensions = embedding_output.size()[2]
         Ss = torch.empty(inputids_first_dimension, 1, hidden_dimensions).to(device) # e.g. [32, 1, 768]
         #IDW = torch.empty([inputids_first_dimension, 1], dtype=torch.long).to(device)
-        IDW = torch.ones([attention_mask.shape[0], 1]).to(device)
+        IDW = torch.ones([attention_mask.shape[0], 1], dtype=torch.long, device=cuda0)
         for i, the_id in enumerate(input_ids):
             sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
             new_sent = ''
@@ -1277,18 +1277,6 @@ class BertForSequenceClassification_Ss(BertPreTrainedModel):
             Ss[i, 0, :] = subjective
             # Ss size [32, 1, 768]
 
-        #得到embeddings output + extended_attention_mask
-        #要修改 embedding_output, extended_attention_mask 然后正常传入即可self.encoder()
-
-        # comments from the transformer source code:
-        # We can provide a self-attention mask of dimensions [batch_size, from_seq_length, to_seq_length]
-        # ourselves in which case we just need to make it broadcastable to all heads.
-        # If a 2D or 3D attention mask is provided for the cross-attention
-        # we need to make broadcastable to [batch_size, num_heads, seq_length, seq_length]
-        # extended_attention_mask size : torch.Size([32, 1, 1, 128])
-        # Sizes are [batch_size, 1, 1, to_seq_length]
-
-        # torch.Size([32, 1, 1, 128])
         IDW = IDW.to(torch.device("cuda"))
         Ss = Ss.to(torch.device("cuda"))
         #
