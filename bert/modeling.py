@@ -1264,7 +1264,7 @@ class BertForSequenceClassification_Ss(BertPreTrainedModel):
         hidden_dimensions = embedding_output.size()[2]
         Ss = torch.empty(inputids_first_dimension, 1, hidden_dimensions).to(device) # e.g. [32, 1, 768]
         #IDW = torch.empty([inputids_first_dimension, 1], dtype=torch.long).to(device)
-        IDW = torch.ones([attention_mask.shape[0], 1], dtype=torch.long, device=cuda0)
+        IDW = torch.ones([attention_mask.shape[0], 1], dtype=torch.long, device="cuda")
         for i, the_id in enumerate(input_ids):
             sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
             new_sent = ''
@@ -1277,7 +1277,7 @@ class BertForSequenceClassification_Ss(BertPreTrainedModel):
             Ss[i, 0, :] = subjective
             # Ss size [32, 1, 768]
 
-        IDW = IDW.to(torch.device("cuda"))
+        #IDW = IDW.to(torch.device("cuda"))
         Ss = Ss.to(torch.device("cuda"))
         #
         # # 处理 embedding output
