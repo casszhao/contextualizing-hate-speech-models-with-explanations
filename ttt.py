@@ -1,25 +1,32 @@
 import torch
 #from bert.tokenization import BertTokenizer
-# import pandas as pd
+import pandas as pd
 #
 # df = pd.read_csv('./data/wassem/train.tsv', sep = '\t')
 #
 # # toxic = df['is_hate'].value_counts()
 # print(df['text'].apply(len).mean())
-a = torch.zeros([32, 128])
 
-shape = a.shape
+df = pd.read_csv('./data/tweet42k/dev.tsv', lineterminator='\n')
+df.to_csv('./data/tweet42k/dev.tsv', sep='\t')
 
-print(shape)
-print(shape[0])
+df = pd.read_csv('./data/tweet42k/dev.tsv')
+print(df.head())
 
-b = torch.ones([a.shape[0], 1])
-
-
-attention_mask = torch.cat([a, b], dim=1)
-
-print(attention_mask)
-print(attention_mask.shape)
+# a = torch.zeros([32, 128])
+#
+# shape = a.shape
+#
+# print(shape)
+# print(shape[0])
+#
+# b = torch.ones([a.shape[0], 1])
+#
+#
+# attention_mask = torch.cat([a, b], dim=1)
+#
+# print(attention_mask)
+# print(attention_mask.shape)
 
 # tensor1 = torch.tensor([[1,1,1],
 #                        [2,2,2]])

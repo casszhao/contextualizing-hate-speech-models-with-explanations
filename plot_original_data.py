@@ -9,7 +9,7 @@ nltk.download('averaged_perceptron_tagger')
 
 def addinfo(data_name, data_path):
     print(data_name)
-    df = pd.read_csv(data_path, usecols=['text','is_hate'], sep='\t') #, nrows=200
+    df = pd.read_csv(data_path, usecols=['text','is_hate'], sep='\t') #, nrows=200　＃, lineterminator='\n'
     # if not contain, use df[~df['text']
 
     df = df[~df['text'].str.lower().str.contains(
@@ -54,7 +54,7 @@ def addinfo(data_name, data_path):
 
 D1 = addinfo('WS', './data/white_supremacy/train.tsv')
 D3 = addinfo('Twitter 18k', './data/wassem/train.tsv')
-D4 = addinfo('Twitter 50k', './data/tweet50k/train.tsv')
+D4 = addinfo('Twitter 42k', './data/tweet42k/train.tsv')
 D5 = addinfo('Wiki', './data/multi-label/train.tsv')
 
 #D2 = combine_all_process('AG10K', './results/AG10K_bert.txt', './results/AG10K_bert.csv')
