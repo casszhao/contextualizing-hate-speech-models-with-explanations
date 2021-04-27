@@ -7,10 +7,10 @@ import pandas as pd
 # # toxic = df['is_hate'].value_counts()
 # print(df['text'].apply(len).mean())
 
-df = pd.read_csv('./data/tweet42k/dev.tsv', lineterminator='\n')
+df = pd.read_csv('data/tweet42k/no_pro/dev.tsv', lineterminator='\n')
 df.to_csv('./data/tweet42k/dev.tsv', sep='\t')
 
-df = pd.read_csv('./data/tweet42k/dev.tsv')
+df = pd.read_csv('data/tweet42k/no_pro/dev.tsv')
 print(df.head())
 
 # a = torch.zeros([32, 128])

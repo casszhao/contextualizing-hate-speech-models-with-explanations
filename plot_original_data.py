@@ -54,7 +54,7 @@ def addinfo(data_name, data_path):
 
 D1 = addinfo('WS', './data/white_supremacy/train.tsv')
 D3 = addinfo('Twitter 18k', './data/wassem/train.tsv')
-D4 = addinfo('Twitter 42k', './data/tweet42k/train.tsv')
+D4 = addinfo('Twitter 42k', 'data/tweet42k/no_pro/train.tsv')
 D5 = addinfo('Wiki', './data/multi-label/train.tsv')
 
 #D2 = combine_all_process('AG10K', './results/AG10K_bert.txt', './results/AG10K_bert.csv')

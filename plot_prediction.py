@@ -51,10 +51,10 @@ def txt2csv(path, new_csv_name):
 
 def addinfo(data_name, data_path):
     print(data_name)
-    df = pd.read_csv(data_path, usecols=['text','label','prediction'] ) #, nrows=200
-    df = df[df['text'].str.lower().str.contains(
-        # df = df[~df['text'].str.contains(
-        "muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
+    df = pd.read_csv(data_path, usecols=['text','label','prediction'] ).dropna() #, nrows=200
+    # df = df[df['text'].str.lower().str.contains(
+    #     # df = df[~df['text'].str.contains(
+    #     "muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
 
     bb_subjective =[]
     for sent in df['text']:
@@ -96,7 +96,7 @@ def combine_all_process(data_name, txt_path, csv_path):
 D1 = combine_all_process('WS', './results/ws_bert_9.txt', './results/ws_bert_9_plot.csv')
 #D2 = combine_all_process('AG10K', './results/AG10K_bert.txt', './results/AG10K_bert.csv')
 D3 = combine_all_process('Twitter 18k', './results/wassem_bert_8.txt', './results/wassem_bert_4_plot.csv')
-D4 = combine_all_process('Twitter 50k', './results/tweet50k_bert_9.txt', './results/tweet50k_bert_9_plot.csv')
+D4 = combine_all_process('Twitter 42k', './results/tweet42k_bert_7.txt', './results/tweet50k_bert_6_plot.csv')
 D5 = combine_all_process('Wiki', './results/mt_bert_0.txt', './results/mt_bert_0_plot.csv')
 frames = [D1, D3, D4, D5]
 
@@ -106,8 +106,12 @@ df = pd.concat(frames)
 df.to_csv('./results/TP_FP.csv')
 
 sns.set_theme(style="whitegrid")
+
+my_palette = {"False Positive": "g", "True Positive": "y"}
+#sns.boxplot(x=df["species"], y=df["sepal_length"], palette=my_pal)
+
 ax = sns.boxplot(x="Data", y="Subjectivity Score", hue="Result",
-                 data=df, palette="Set3")
+                 data=df, palette="Set3", hue_order= ["False Positive", "True Positive"])  # "Set3"
 # ax.despine(left=True)
 # plt.legend(loc='upper left')
 #plt.legend(bbox_to_anchor=(1.01, 1),borderaxespad=0)

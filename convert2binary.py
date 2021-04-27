@@ -54,6 +54,6 @@ print(dev['is_hate'].value_counts())
 
 
 train.to_csv('./data/tweet42k/train.tsv', sep='\t', line_terminator='\n')
-train = pd.read_csv('./data/tweet42k/train.tsv')
+train = pd.read_csv('data/tweet42k/no_pro/train.tsv')
 test.to_csv('./data/tweet42k/test.tsv', sep='\t', line_terminator='\n')
 dev.to_csv('./data/tweet42k/dev.tsv', sep='\t', line_terminator='\n')
