@@ -18,7 +18,7 @@ from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch.nn import functional as F
 
-from transformers import RobertaModel, RobertaConfig, RobertaTokenizer
+from transformers import RobertaModel, RobertaConfig, RobertaTokenizer, RobertaPreTrainedModel
 
 from .file_utils import cached_path, WEIGHTS_NAME, CONFIG_NAME
 
