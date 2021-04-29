@@ -18,7 +18,9 @@ from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch.nn import functional as F
 
-from transformers import RobertaModel, RobertaConfig, RobertaTokenizer, PreTrainedModel#, RobertaPreTrainedModel
+import transformers
+from transformers import RobertaModel, RobertaConfig, RobertaTokenizer, PreTrainedModel
+#from transformers import RobertaPreTrainedModel
 
 from .file_utils import cached_path, WEIGHTS_NAME, CONFIG_NAME
 
@@ -36,9 +38,25 @@ PRETRAINED_MODEL_ARCHIVE_MAP = {
     'bert-base-multilingual-uncased': "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-multilingual-uncased.tar.gz",
     'bert-base-multilingual-cased': "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-multilingual-cased.tar.gz",
     'bert-base-chinese': "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-chinese.tar.gz",
+    'roberta-base': "https://s3.amazonaws.com/models.huggingface.co/roberta/roberta-base.tar.gz",
 }
 BERT_CONFIG_NAME = 'bert_config.json'
 TF_WEIGHTS_NAME = 'model.ckpt'
+
+ROBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP = {
+    "roberta-base": "https://huggingface.co/roberta-base/resolve/main/config.json",
+    "roberta-large": "https://huggingface.co/roberta-large/resolve/main/config.json",
+    "roberta-large-mnli": "https://huggingface.co/roberta-large-mnli/resolve/main/config.json",
+    "distilroberta-base": "https://huggingface.co/distilroberta-base/resolve/main/config.json",
+    "roberta-base-openai-detector": "https://huggingface.co/roberta-base-openai-detector/resolve/main/config.json",
+    "roberta-large-openai-detector": "https://huggingface.co/roberta-large-openai-detector/resolve/main/config.json",
+}
+
+ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP = {
+    'roberta-base': "https://s3.amazonaws.com/models.huggingface.co/bert/roberta-base-pytorch_model.bin",
+    'roberta-large': "https://s3.amazonaws.com/models.huggingface.co/bert/roberta-large-pytorch_model.bin",
+    'roberta-large-mnli': "https://s3.amazonaws.com/models.huggingface.co/bert/roberta-large-mnli-pytorch_model.bin",
+}
 
 class RobertaPreTrainedModel(PreTrainedModel):
     """
