@@ -34,6 +34,12 @@ PRETRAINED_VOCAB_ARCHIVE_MAP = {
     'bert-base-multilingual-uncased': "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-multilingual-uncased-vocab.txt",
     'bert-base-multilingual-cased': "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-multilingual-cased-vocab.txt",
     'bert-base-chinese': "https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-chinese-vocab.txt",
+    "roberta-base": "https://huggingface.co/roberta-base/resolve/main/config.json",
+    "roberta-large": "https://huggingface.co/roberta-large/resolve/main/config.json",
+    "roberta-large-mnli": "https://huggingface.co/roberta-large-mnli/resolve/main/config.json",
+    "distilroberta-base": "https://huggingface.co/distilroberta-base/resolve/main/config.json",
+    "roberta-base-openai-detector": "https://huggingface.co/roberta-base-openai-detector/resolve/main/config.json",
+    "roberta-large-openai-detector": "https://huggingface.co/roberta-large-openai-detector/resolve/main/config.json",
 }
 PRETRAINED_VOCAB_POSITIONAL_EMBEDDINGS_SIZE_MAP = {
     'bert-base-uncased': 512,
@@ -43,6 +49,7 @@ PRETRAINED_VOCAB_POSITIONAL_EMBEDDINGS_SIZE_MAP = {
     'bert-base-multilingual-uncased': 512,
     'bert-base-multilingual-cased': 512,
     'bert-base-chinese': 512,
+    'roberta-base': 512,
 }
 VOCAB_NAME = 'vocab.txt'
 
