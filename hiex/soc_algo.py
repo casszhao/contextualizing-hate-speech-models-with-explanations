@@ -3,7 +3,7 @@ from .agglomeration import *
 import numpy as np
 import copy
 import pickle
-from skimage import measure
+from scikit_image import measure
 from torch.nn import functional as F
 
 
