@@ -33,6 +33,7 @@ from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 
 from transformers import RobertaModel, RobertaConfig, RobertaTokenizer, PreTrainedModel#RobertaPreTrainedModel
+from transformers import RobertaForSequenceClassification
 
 from loader import GabProcessor, WSProcessor, NytProcessor, convert_examples_to_features #,multiclass_Processor,multilabel_Processor
 from utils.config import configs, combine_args
@@ -371,13 +372,13 @@ def main():
     cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE),
                                                                    'distributed_{}'.format(args.local_rank))
     if args.do_train:
-        model = RoBertForSequenceClassification.from_pretrained(args.bert_model,
+        model = RobertaForSequenceClassification.from_pretrained(args.bert_model,
                                                               cache_dir=cache_dir,
                                                               num_labels=num_labels)
 
 
     else:
-        model = RoBertForSequenceClassification.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = RobertaForSequenceClassification.from_pretrained(args.output_dir, num_labels=num_labels)
     model.to(device)
 
     if args.fp16:
@@ -485,7 +486,7 @@ def main():
                 input_ids, input_mask, segment_ids, label_ids = batch
 
                 # define a new function to compute loss values for both output_modes
-                logits = model(input_ids, segment_ids, input_mask, labels=None)
+                logits = model(input_ids, segment_ids, input_mask, labels=None)[0]
 
                 if output_mode == "classification":
                     loss_fct = CrossEntropyLoss(class_weight)
@@ -613,7 +614,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         label_ids = label_ids.to(device)
 
         with torch.no_grad():
-            logits = model(input_ids, segment_ids, input_mask, labels=None)
+            logits = model(input_ids, segment_ids, input_mask, labels=None)[0]
 
         # create eval loss and other metric required by the task
         if output_mode == "classification":
