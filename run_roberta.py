@@ -451,7 +451,7 @@ def main():
                                                 )
     else:
         explainer = None
-
+    
     if args.do_train:
         epoch = 0
         train_features = convert_examples_to_features(
@@ -489,6 +489,10 @@ def main():
                 # define a new function to compute loss values for both output_modes
                 outputs = model(input_ids, input_mask, labels=None)
                 logits = outputs.logits
+#                 hidden_states = outputs.hidden_states
+#                 attentions = outputs.attentions
+                
+                
 
                 if output_mode == "classification":
                     loss_fct = CrossEntropyLoss(class_weight)
