@@ -20,7 +20,7 @@ class RobertaModel(RobertaPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids"]
 
     # Copied from transformers.models.bert.modeling_bert.BertModel.__init__ with Bert->Roberta
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config, add_pooling_layer=True, igw_after_chuli=None):
         super().__init__(config)
         self.config = config
 
@@ -30,6 +30,7 @@ class RobertaModel(RobertaPreTrainedModel):
         self.pooler = RobertaPooler(config) if add_pooling_layer else None
 
         self.init_weights()
+        self.igw = igw_after_chuli
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -89,6 +90,7 @@ class RobertaModel(RobertaPreTrainedModel):
             If set to :obj:`True`, :obj:`past_key_values` key value states are returned and can be used to speed up
             decoding (see :obj:`past_key_values`).
         """
+
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
@@ -150,6 +152,43 @@ class RobertaModel(RobertaPreTrainedModel):
             inputs_embeds=inputs_embeds,
             past_key_values_length=past_key_values_length,
         )
+
+        inputids_first_dimension = embedding_output.size()[0]  # batch size
+        hidden_dimensions = embedding_output.size()[2]
+        Ss = torch.empty(inputids_first_dimension, 1, hidden_dimensions).to(device)  # e.g. [32, 1, 768]
+        IDW = torch.empty([inputids_first_dimension, 1], dtype=torch.long).to(device)
+        for i, the_id in enumerate(input_ids):
+            sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
+            new_sent = ''
+            for word in sent:
+                if word != '[PAD]':
+                    new_sent = new_sent + word + ' '
+
+            blob = TextBlob(new_sent)
+            subjective = blob.sentiment.subjectivity
+            Ss[i, 0, :] = subjective
+            # Ss size [32, 1, 768]
+
+            sent = [x.lower() for x in sent]
+            words = set(sent)
+            inter = words.intersection(self.igw)
+            if len(inter) > 0:
+                IDW[i, 0] = 1
+            elif len(inter) == 0:
+                IDW[i, 0] = 0
+
+        IDW = IDW.to(torch.device("cuda"))
+        Ss = Ss.to(torch.device("cuda"))
+
+        embedding_output = torch.cat([embedding_output, Ss], dim=1)  # [32, 128, 768] [32, 1, 768] --> [32, 129, 768]
+
+        # 处理 attention mask
+        attention_mask = torch.cat([attention_mask, IDW], dim=1)  # [32, 128] [32, 1] --> [32, 129]
+        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)  # [32, 129] --> [32, 1, 1, 129]
+        extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
+        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
+
+
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
