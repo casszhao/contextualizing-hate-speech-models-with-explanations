@@ -487,7 +487,8 @@ def main():
                 input_ids, input_mask, segment_ids, label_ids = batch
 
                 # define a new function to compute loss values for both output_modes
-                logits = model(input_ids, segment_ids, input_mask, labels=None).logits
+                outputs = model(input_ids, input_mask, labels=None)
+                logits = outputs.logits
 
                 if output_mode == "classification":
                     loss_fct = CrossEntropyLoss(class_weight)
@@ -510,7 +511,7 @@ def main():
                 # NOTE: backward performed inside this function to prevent OOM
 
                 if args.reg_explanations:
-                    reg_loss, reg_cnt = explainer.compute_explanation_loss(input_ids, input_mask, segment_ids, label_ids,
+                    reg_loss, reg_cnt = explainer.compute_explanation_loss(input_ids, input_mask, label_ids,
                                                                   do_backprop=True)
                     tr_reg_loss += reg_loss # float
                     tr_reg_cnt += reg_cnt
@@ -615,7 +616,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
         label_ids = label_ids.to(device)
 
         with torch.no_grad():
-            logits = model(input_ids, segment_ids, input_mask, labels=None).logits
+            logits = model(input_ids, input_mask, labels=None).logits
 
         # create eval loss and other metric required by the task
         if output_mode == "classification":
@@ -629,7 +630,7 @@ def validate(args, model, processor, tokenizer, output_mode, label_list, device,
 
         if args.reg_explanations:
             with torch.no_grad():
-                reg_loss, reg_cnt = explainer.compute_explanation_loss(input_ids, input_mask, segment_ids, label_ids,
+                reg_loss, reg_cnt = explainer.compute_explanation_loss(input_ids, input_mask, label_ids,
                                                               do_backprop=False)
             #eval_loss += reg_loss.item()
             eval_loss_reg += reg_loss
@@ -781,9 +782,9 @@ def explain(args, model, processor, tokenizer, output_mode, label_list, device):
         label_ids = label_ids.to(device)
 
         if not args.hiex:
-            explainer.word_level_explanation_bert(input_ids, input_mask, segment_ids, label_ids)
+            explainer.word_level_explanation_bert(input_ids, input_mask, label_ids)
         else:
-            explainer.hierarchical_explanation_bert(input_ids, input_mask, segment_ids, label_ids)
+            explainer.hierarchical_explanation_bert(input_ids, input_mask, label_ids)
     if hasattr(explainer, 'dump'):
         explainer.dump()
 
