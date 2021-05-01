@@ -31,6 +31,7 @@ from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_
 from bert.modeling import BertForSequenceClassification, BertConfig
 from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
+from bert.ss_roberta_model import RobertaForSequenceClassification_Ss_IDW
 
 from transformers import RobertaModel, RobertaConfig, RobertaTokenizer, PreTrainedModel#RobertaPreTrainedModel
 from transformers import RobertaForSequenceClassification

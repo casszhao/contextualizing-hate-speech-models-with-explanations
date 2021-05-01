@@ -169,6 +169,8 @@ TF_WEIGHTS_NAME = 'model.ckpt'
 #
 
 
+
+
 def load_tf_weights_in_bert(model, tf_checkpoint_path):
     """ Load tf checkpoints in a pytorch model
     """
