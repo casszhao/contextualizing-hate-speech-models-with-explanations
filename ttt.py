@@ -2,7 +2,7 @@ import torch
 #from bert.tokenization import BertTokenizer
 import pandas as pd
 
-from transformers import RobertaClassificationHead, RobertaModel, RobertaConfig, RobertaTokenizer
+from transformers import RobertaForSequenceClassification, RobertaEmbeddings, RobertaModel, RobertaConfig, RobertaTokenizer
 
 class RobertaClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
