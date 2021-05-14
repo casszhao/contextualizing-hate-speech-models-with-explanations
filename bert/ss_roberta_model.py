@@ -65,6 +65,7 @@ class RobertaModel(RobertaPreTrainedModel):
 
         self.init_weights()
         self.igw = igw_after_chuli
+        self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
