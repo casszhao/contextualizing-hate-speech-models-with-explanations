@@ -1,5 +1,6 @@
 import transformers
-
+import torch
+import torch.nn as nn
 print('transformer version:', transformers.__version__)
 
 
