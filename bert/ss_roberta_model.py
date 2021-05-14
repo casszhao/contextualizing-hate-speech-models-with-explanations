@@ -1,9 +1,10 @@
 import transformers
 
-print(transformers.__version__)
+print('transformer version:', transformers.__version__)
 
 
-from transformers import PreTrainedModel, RobertaConfig, RobertaEmbeddings#, RobertaEncoder, RobertaPooler,
+from transformers import PreTrainedModel, RobertaConfig
+from transformers.models.roberta.modeling_roberta import RobertaEmbeddings #, RobertaEncoder, RobertaPooler,
 
 
 
