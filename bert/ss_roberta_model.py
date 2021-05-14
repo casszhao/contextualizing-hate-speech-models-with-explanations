@@ -4,7 +4,7 @@ print('transformer version:', transformers.__version__)
 
 
 from transformers import PreTrainedModel, RobertaConfig
-from transformers.models.roberta.modeling_roberta import RobertaEmbeddings #, RobertaEncoder, RobertaPooler,
+from transformers.models.roberta.modeling_roberta import RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead #, RobertaEncoder, RobertaPooler,
 
 
 
@@ -291,8 +291,7 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
             inputs_embeds=inputs_embeds,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
+            return_dict=return_dict)
         sequence_output = outputs[0]
         logits = self.classifier(sequence_output)
 
