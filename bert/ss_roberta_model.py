@@ -3,7 +3,7 @@ import transformers
 print(transformers.__version__)
 
 
-from transformers import  PreTrainedModel, RobertaConfig#RobertaEmbeddings, RobertaEncoder, RobertaPooler,
+from transformers import PreTrainedModel, RobertaConfig, RobertaEmbeddings#, RobertaEncoder, RobertaPooler,
 
 
 

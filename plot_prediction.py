@@ -41,7 +41,7 @@ def txt2csv(path, new_csv_name):
         "text": text
     })
 
-    df = df[~df['text'].str.contains("muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
+    df = df[df['text'].str.contains("muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
 
     df.to_csv(new_csv_name, sep=',', index=False)
     # print(df)
@@ -71,17 +71,18 @@ def addinfo(data_name, data_path):
 
     def results_tpye(row):
         if (row['label'] == 1 and row['prediction'] == 1):
-            return 'TPwoIT'
+            return 'TPwIT'
         if row['label'] == 0 and row['prediction'] == 1:
-            return 'FPwoIT'
+            return 'FPwIT'
         if row['label'] == 0 and row['prediction'] == 0:
             return 'True Negative'
         if row['label'] == 1 and row['prediction'] == 0:
-            return 'FNwIT'
+            return 'False Negative'
         return 'Other'
 
     df['Result'] = df.apply(lambda row: results_tpye(row), axis=1)
-    df = df.loc[(df['Result'] == 'TPwoIT') | (df['Result'] == 'FPwoIT')]
+    df = df.loc[(df['Result'] == 'TPwIT') | (df['Result'] == 'FPwIT')]
+    #df = df.loc[(df['Result'] == 'False Negative') | (df['Result'] == 'False Positive')]
     print(df['Result'].value_counts())
     # only keep 'True Positive' and 'False Positive'
     return df
@@ -103,15 +104,15 @@ frames = [D1, D3, D4, D5]
 # label, text, Prediction, Subjective Score, Data, Result
 df = pd.concat(frames)
 
-df.to_csv('./results/TP_FP.csv')
+df.to_csv('./results/nonIT_FN_FP.csv')
 
 sns.set_theme(style="whitegrid")
 
-my_palette = {"FPwoIT": "g", "TPwoIT": "y"}
+my_palette = {"FPwIT": "g", "TPwIT": "y"}
 # sns.boxplot(x=df["species"], y=df["sepal_length"], palette=my_pal)
 
 ax = sns.boxplot(x="Data", y="Subjectivity Score", hue="Result",
-                 data=df, palette="Set3", hue_order=["FPwoIT", "TPwoIT"])  # "Set3"
+                 data=df, palette="Set3", hue_order=["FPwIT", "TPwIT"])  # "Set3"
 # ax.despine(left=True)
 # plt.legend(loc='upper left')
 # plt.legend(bbox_to_anchor=(1.01, 1),borderaxespad=0)
@@ -123,5 +124,11 @@ box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])  # resize position
 
 # Put a legend to the right side
-ax.legend(loc='upper right', bbox_to_anchor=(1.25, 1), ncol=1)  # bbox_to_anchor=(1.4, 1),左右 越大越右 上下 越大约上
+ax.legend(loc='upper right', bbox_to_anchor=(1.35, 1), ncol=1, fontsize=16)  # bbox_to_anchor=(1.4, 1),左右 越大越右 上下 越大约上
+ax.set_xlabel('Data', fontsize=16)
+ax.set_ylabel('Subjectivity Scores', fontsize=16)
+
+for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+	label.set_fontsize(13)
+#plt.rcParams['font.size'] = '16'
 plt.show()
