@@ -17,6 +17,33 @@ from torch import nn
 from torch.nn import functional as F
 from tqdm import tqdm, trange
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import copy
+import json
+import logging
+import math
+import os
+import shutil
+import tarfile
+import tempfile
+import sys
+from io import open
+import pandas as pd
+import re
+
+import torch
+from torch import nn
+from torch.nn import CrossEntropyLoss
+from torch.nn import functional as F
+
+
+from .file_utils import cached_path, WEIGHTS_NAME, CONFIG_NAME
+
+
+from bert.tokenization import BertTokenizer
+from textblob import TextBlob
+
 """
 Running BERT finetuning & evaluation on hate speech classification datasets.
 Integrated with SOC explanation regularization
