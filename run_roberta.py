@@ -488,6 +488,8 @@ def main():
 
                 # define a new function to compute loss values for both output_modes
                 outputs = model(input_ids, input_mask, labels=None)
+                print('outputs len', len(outputs))
+                print('outputs 0 size', outputs[0].size())
                 logits = outputs.logits
 #                 hidden_states = outputs.hidden_states
 #                 attentions = outputs.attentions
