@@ -374,14 +374,32 @@ def main():
     # Prepare model
     cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE),
                                                                    'distributed_{}'.format(args.local_rank))
+
+    words_csv_file = args.neutral_words_file
+
+    def csv2set(words_csv_file):
+        data = pd.read_csv(words_csv_file, sep='\t', header=None)
+
+        identifiers_set = set(data[0].tolist())
+        # with open('./idw.txt', 'a') as f:
+        #     for line in identity:
+        #         f.write("%s\n" % line)
+        return identifiers_set
+
+
+    igw_after_chuli = csv2set(words_csv_file)
+
     if args.do_train:
         model = RobertaForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
-                                                              cache_dir=cache_dir,
-                                                              num_labels=num_labels)
+                                                                        cache_dir=cache_dir,
+                                                                        igw_after_chuli=igw_after_chuli,
+                                                                        num_labels=num_labels)
 
 
     else:
-        model = RobertaForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir, num_labels=num_labels)
+        model = RobertaForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir,
+                                                                        igw_after_chuli=igw_after_chuli,
+                                                                        num_labels=num_labels)
     model.to(device)
 
     if args.fp16:
