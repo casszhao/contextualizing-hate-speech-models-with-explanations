@@ -4,7 +4,7 @@ import torch.nn as nn
 print('transformer version:', transformers.__version__)
 
 
-from transformers import PreTrainedModel, RobertaConfig
+from transformers import PreTrainedModel, RobertaConfig, RobertaTokenizer
 from transformers.models.roberta.modeling_roberta import RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead #, RobertaEncoder, RobertaPooler,
 
 
