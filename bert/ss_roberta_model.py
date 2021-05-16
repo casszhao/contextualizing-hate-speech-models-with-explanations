@@ -32,7 +32,7 @@ class TransformerFFN(nn.Module):
         x = F.dropout(x, p=self.dropout, training=self.training)
         return x
 
-if args.local_rank == -1 or args.no_cuda:
+    if args.local_rank == -1 or args.no_cuda:
         device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
         n_gpu = torch.cuda.device_count()
     else:
