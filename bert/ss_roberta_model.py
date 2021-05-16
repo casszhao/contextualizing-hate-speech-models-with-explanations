@@ -44,6 +44,7 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.config = config
+        self.tokenizer = tokenizer
 
         #self.roberta = RobertaModel(config, add_pooling_layer=False)
         self.embeddings = RobertaEmbeddings(config)
@@ -87,7 +88,7 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
             position_ids=position_ids,
             token_type_ids=token_type_ids,
             inputs_embeds=inputs_embeds,
-            past_key_values_length=past_key_values_length,
+            #past_key_values_length=past_key_values_length,
         )
 
         inputids_first_dimension = embedding_output.size()[0]  # batch size
@@ -95,7 +96,9 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
         Ss = torch.empty(inputids_first_dimension, 1, hidden_dimensions).to(device)  # e.g. [32, 1, 768]
         IDW = torch.empty([inputids_first_dimension, 1], dtype=torch.long).to(device)
         for i, the_id in enumerate(input_ids):
-            sent = self.tokenizer.convert_ids_to_tokens(the_id.tolist())
+            print('the_id', the_id)
+            sent = self.tokenizer.convert_ids_to_tokens(the_id.cpu().numpy().tolist())
+            #tokenizer.convert_ids_to_tokens(input_ids[b, :i].cpu().numpy().tolist())
             new_sent = ''
             for word in sent:
                 if word != '[PAD]':

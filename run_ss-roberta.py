@@ -373,12 +373,14 @@ def main():
     if args.do_train:
         model = RobertaForSequenceClassification_Ss_IDW.from_pretrained(args.bert_model,
                                                                         cache_dir=cache_dir,
+                                                                        tokenizer = RobertaTokenizer.from_pretrained("roberta-base"),
                                                                         igw_after_chuli=igw_after_chuli,
                                                                         num_labels=num_labels)
 
 
     else:
         model = RobertaForSequenceClassification_Ss_IDW.from_pretrained(args.output_dir,
+                                                                        tokenizer=RobertaTokenizer.from_pretrained("roberta-base"),
                                                                         igw_after_chuli=igw_after_chuli,
                                                                         num_labels=num_labels)
     model.to(device)
