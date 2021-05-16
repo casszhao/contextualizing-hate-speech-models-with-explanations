@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
 #import csv
@@ -16,8 +16,6 @@ from torch.utils.data.distributed import DistributedSampler
 from torch import nn
 from torch.nn import functional as F
 from tqdm import tqdm, trange
-
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import copy
 import json
