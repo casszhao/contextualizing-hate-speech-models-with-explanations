@@ -6,7 +6,8 @@ print('transformer version:', transformers.__version__)
 
 
 from transformers import PreTrainedModel, RobertaConfig, RobertaTokenizer
-from transformers.models.roberta.modeling_roberta import RobertaPreTrainedModel, RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead #, RobertaEncoder, RobertaPooler,
+from transformers.models.roberta.modeling_roberta import RobertaPreTrainedModel, RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead
+from transformers.models.roberta.modeling_roberta import RobertaPooler #, RobertaEncoder, RobertaPooler,
 
 class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids"]
@@ -19,7 +20,7 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
         #self.roberta = RobertaModel(config, add_pooling_layer=False)
         self.embeddings = RobertaEmbeddings(config)
         self.encoder = RobertaEncoder(config)
-        self.pooler = RobertaPooler(config) if add_pooling_layer else None
+        self.pooler = RobertaPooler(config) #if add_pooling_layer else None
 
 
 
