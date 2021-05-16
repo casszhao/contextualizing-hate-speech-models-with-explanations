@@ -12,6 +12,8 @@ from transformers.models.roberta.modeling_roberta import RobertaPooler #, Robert
 from transformers.models.xlm.modeling_xlm import XLMPreTrainedModel
 from transformers.models.ctrl.modeling_ctrl import MultiHeadAttention
 
+device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+
 class TransformerFFN(nn.Module):
     def __init__(self, in_dim, dim_hidden, out_dim, config):
         super().__init__()
@@ -32,15 +34,7 @@ class TransformerFFN(nn.Module):
         x = F.dropout(x, p=self.dropout, training=self.training)
         return x
 
-    if args.local_rank == -1 or args.no_cuda:
-        device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
-        n_gpu = torch.cuda.device_count()
-    else:
-        torch.cuda.set_device(args.local_rank)
-        device = torch.device("cuda", args.local_rank)
-        n_gpu = 1
-        # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
-        torch.distributed.init_process_group(backend='nccl')
+
 
 
 class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
