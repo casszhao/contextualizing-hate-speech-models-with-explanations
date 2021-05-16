@@ -9,6 +9,18 @@ from transformers import PreTrainedModel, RobertaConfig, RobertaTokenizer
 from transformers.models.roberta.modeling_roberta import RobertaPreTrainedModel, RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead
 from transformers.models.roberta.modeling_roberta import RobertaPooler #, RobertaEncoder, RobertaPooler,
 
+
+if args.local_rank == -1 or args.no_cuda:
+        device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+        n_gpu = torch.cuda.device_count()
+    else:
+        torch.cuda.set_device(args.local_rank)
+        device = torch.device("cuda", args.local_rank)
+        n_gpu = 1
+        # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
+        torch.distributed.init_process_group(backend='nccl')
+
+
 class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids"]
 
@@ -149,3 +161,90 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
             attentions=outputs.attentions,
         )
 
+
+
+
+class XLMForSequenceClassification(XLMPreTrainedModel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.num_labels = config.num_labels
+        self.config = config
+
+        self.transformer = XLMModel(config)
+
+
+
+
+
+
+
+        self.sequence_summary = SequenceSummary(config)
+
+        self.init_weights()
+
+    def forward(
+        self,
+        input_ids=None,
+        attention_mask=None,
+        langs=None,
+        token_type_ids=None,
+        position_ids=None,
+        lengths=None,
+        cache=None,
+        head_mask=None,
+        inputs_embeds=None,
+        labels=None,
+        output_attentions=None,
+        output_hidden_states=None,
+        return_dict=None,
+    ):
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        transformer_outputs = self.transformer(
+            input_ids,
+            attention_mask=attention_mask,
+            langs=langs,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            lengths=lengths,
+            cache=cache,
+            head_mask=head_mask,
+            inputs_embeds=inputs_embeds,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+
+        output = transformer_outputs[0]
+        logits = self.sequence_summary(output)
+
+        loss = None
+        if labels is not None:
+            if self.config.problem_type is None:
+                if self.num_labels == 1:
+                    self.config.problem_type = "regression"
+                elif self.num_labels > 1 and (labels.dtype == torch.long or labels.dtype == torch.int):
+                    self.config.problem_type = "single_label_classification"
+                else:
+                    self.config.problem_type = "multi_label_classification"
+
+            if self.config.problem_type == "regression":
+                loss_fct = MSELoss()
+                loss = loss_fct(logits.view(-1, self.num_labels), labels)
+            elif self.config.problem_type == "single_label_classification":
+                loss_fct = CrossEntropyLoss()
+                loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            elif self.config.problem_type == "multi_label_classification":
+                loss_fct = BCEWithLogitsLoss()
+                loss = loss_fct(logits, labels)
+
+
+        if not return_dict:
+            output = (logits,) + transformer_outputs[1:]
+            return ((loss,) + output) if loss is not None else output
+
+        return SequenceClassifierOutput(loss=loss,
+                                        logits=logits,
+                                        hidden_states=transformer_outputs.hidden_states,
+                                        attentions=transformer_outputs.attentions,
+                                        )
