@@ -1,4 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
+#from .file_utils import cached_path, WEIGHTS_NAME, CONFIG_NAME
+from bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE, WEIGHTS_NAME, CONFIG_NAME, cached_path
 
 import argparse
 #import csv
@@ -34,9 +36,6 @@ import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch.nn import functional as F
-
-
-from .file_utils import cached_path, WEIGHTS_NAME, CONFIG_NAME
 
 
 from bert.tokenization import BertTokenizer
