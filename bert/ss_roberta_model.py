@@ -6,35 +6,9 @@ print('transformer version:', transformers.__version__)
 
 
 from transformers import PreTrainedModel, RobertaConfig, RobertaTokenizer
-from transformers.models.roberta.modeling_roberta import RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead #, RobertaEncoder, RobertaPooler,
+from transformers.models.roberta.modeling_roberta import RobertaPreTrainedModel, RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead #, RobertaEncoder, RobertaPooler,
 
 
-
-class RobertaPreTrainedModel(PreTrainedModel):
-    """
-    An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
-    models.
-    """
-
-    config_class = RobertaConfig
-    base_model_prefix = "roberta"
-
-    # Copied from transformers.models.bert.modeling_bert.BertPreTrainedModel._init_weights
-    def _init_weights(self, module):
-        """ Initialize the weights """
-        if isinstance(module, nn.Linear):
-            # Slightly different from the TF version which uses truncated_normal for initialization
-            # cf https://github.com/pytorch/pytorch/pull/5617
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
-            if module.bias is not None:
-                module.bias.data.zero_()
-        elif isinstance(module, nn.Embedding):
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
-            if module.padding_idx is not None:
-                module.weight.data[module.padding_idx].zero_()
-        elif isinstance(module, nn.LayerNorm):
-            module.bias.data.zero_()
-            module.weight.data.fill_(1.0)
 
 class RobertaModel(RobertaPreTrainedModel):
     """
@@ -47,8 +21,6 @@ class RobertaModel(RobertaPreTrainedModel):
     set to :obj:`True`. To be used in a Seq2Seq model, the model needs to initialized with both :obj:`is_decoder`
     argument and :obj:`add_cross_attention` set to :obj:`True`; an :obj:`encoder_hidden_states` is then expected as an
     input to the forward pass.
-
-    .. _`Attention is all you need`: https://arxiv.org/abs/1706.03762
 
     """
 
@@ -252,10 +224,11 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
         super().__init__(config)
         self.num_labels = config.num_labels
 
-        self.roberta = RobertaModel(config, add_pooling_layer=False)
+        self.roberta = RobertaModel(config, add_pooling_layer=False, igw_after_chuli = igw_after_chuli)
         self.classifier = RobertaClassificationHead(config)
 
         self.init_weights()
+        self.igw = igw_after_chuli
 
     # @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
     # @add_code_sample_docstrings(
