@@ -92,7 +92,7 @@ def main():
                         help="Bert pre-trained model selected in the list: bert-base-uncased, "
                              "bert-large-uncased, bert-base-cased, bert-large-cased, bert-base-multilingual-uncased, "
                              "bert-base-multilingual-cased, bert-base-chinese."
-                             "roberta-base", "xlm-mlm-ende-1024")
+                             "roberta-base, xlm-mlm-ende-1024")
     parser.add_argument("--task_name",
                         default=None,
                         type=str,
