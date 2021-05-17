@@ -1,33 +1,35 @@
 import torch
+import argparse
+from utils.config import configs, combine_args
 #from bert.tokenization import BertTokenizer
 import pandas as pd
 
 from transformers import RobertaForSequenceClassification, RobertaModel, RobertaConfig, RobertaTokenizer
 
-tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-a = tokenizer.convert_ids_to_tokens([11,11,22])
-print(a)
+parser = argparse.ArgumentParser()
+parser.add_argument("--data_dir",
+                        type=str,
+                        help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
+parser.add_argument("--d1111111",
+                        type=str,
+                        help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
+args = parser.parse_args()
+print(args)
+
+parser2 = argparse.ArgumentParser()
+parser2.add_argument("--d2222222222",
+                        type=str,
+                        help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
+
+args2 = parser2.parse_args()
+print(args2)
+combine_args(args2, args)
+#args = args2
+print('')
+print(args)
 
 
 
-
-class RobertaClassificationHead(nn.Module):
-    """Head for sentence-level classification tasks."""
-
-    def __init__(self, config):
-        super().__init__()
-        self.dense = nn.Linear(config.hidden_size, config.hidden_size)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.out_proj = nn.Linear(config.hidden_size, config.num_labels)
-
-    def forward(self, features, **kwargs):
-        x = features[:, 0, :]  # take <s> token (equiv. to [CLS])
-        x = self.dropout(x)
-        x = self.dense(x)
-        x = torch.tanh(x)
-        x = self.dropout(x)
-        x = self.out_proj(x)
-        return x
 
 #
 # df = pd.read_csv('./data/wassem/train.tsv', sep = '\t')

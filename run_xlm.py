@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function
-
+from torch.nn import functional as F
 import argparse
 #import csv
 import logging
@@ -16,7 +16,7 @@ from torch.utils.data.distributed import DistributedSampler
 from torch import nn
 from torch.nn import functional as F
 from tqdm import tqdm, trange
-
+from transformers.modeling_utils import SequenceSummary
 """
 Running BERT finetuning & evaluation on hate speech classification datasets.
 Integrated with SOC explanation regularization
@@ -77,6 +77,7 @@ def pearson_and_spearman(preds, labels):
 def compute_metrics(task_name, preds, labels, pred_probs):
     assert len(preds) == len(labels)
     return acc_and_f1(preds, labels, pred_probs)
+
 
 
 def main():
@@ -260,6 +261,7 @@ def main():
         'ws': 'classification',
         'nyt': 'classification'
     }
+
 
     if args.local_rank == -1 or args.no_cuda:
         device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")

@@ -2,6 +2,7 @@ import transformers
 import torch
 import torch.nn as nn
 from textblob import TextBlob
+from torch.nn import functional as F
 print('transformer version:', transformers.__version__)
 
 
@@ -9,10 +10,15 @@ from transformers import PreTrainedModel, RobertaConfig, RobertaTokenizer
 from transformers.models.roberta.modeling_roberta import RobertaPreTrainedModel, RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead
 from transformers.models.roberta.modeling_roberta import RobertaPooler #, RobertaEncoder, RobertaPooler,
 
+from transformers.modeling_utils import SequenceSummary
+
 from transformers.models.xlm.modeling_xlm import XLMPreTrainedModel
 from transformers.models.ctrl.modeling_ctrl import MultiHeadAttention
 
 device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+
+def gelu(x):
+    return 0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
 
 class TransformerFFN(nn.Module):
     def __init__(self, in_dim, dim_hidden, out_dim, config):
@@ -35,7 +41,29 @@ class TransformerFFN(nn.Module):
         return x
 
 
+def get_masks(slen, lengths, causal, padding_mask=None):
+    """
+    Generate hidden states mask, and optionally an attention mask.
+    """
+    alen = torch.arange(slen, dtype=torch.long, device=lengths.device)
+    if padding_mask is not None:
+        mask = padding_mask
+    else:
+        assert lengths.max().item() <= slen
+        mask = alen < lengths[:, None]
 
+    # attention mask is the same as mask, or triangular inferior attention (causal)
+    bs = lengths.size(0)
+    if causal:
+        attn_mask = alen[None, None, :].repeat(bs, slen, 1) <= alen[None, :, None]
+    else:
+        attn_mask = mask
+
+    # sanity check
+    assert mask.size() == (bs, slen)
+    assert causal is False or attn_mask.size() == (bs, slen, slen)
+
+    return mask, attn_mask
 
 class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids"]
@@ -239,7 +267,7 @@ class XLMForSequenceClassification(XLMPreTrainedModel):
         #     self.encoder_attn = nn.ModuleList()
 
         for _ in range(self.n_layers):
-            self.attentions.append(MultiHeadAttention(self.n_heads, self.dim, config=config))
+            self.attentions.append(MultiHeadAttention(self.n_heads, self.dim))
             self.layer_norm1.append(nn.LayerNorm(self.dim, eps=config.layer_norm_eps))
             # if self.is_decoder:
             #     self.layer_norm15.append(nn.LayerNorm(self.dim, eps=config.layer_norm_eps))
@@ -370,9 +398,9 @@ class XLMForSequenceClassification(XLMPreTrainedModel):
             attn_outputs = self.attentions[i](
                 tensor,
                 attn_mask,
-                cache=cache,
+                #cache=cache,
                 head_mask=head_mask[i],
-                output_attentions=output_attentions,
+                #output_attentions=output_attentions,
             )
             attn = attn_outputs[0]
             if output_attentions:
