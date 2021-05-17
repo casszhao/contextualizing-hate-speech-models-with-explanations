@@ -194,8 +194,8 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
         return SequenceClassifierOutput(
             loss=loss,
             logits=logits,
-            hidden_states=outputs.hidden_states,
-            attentions=outputs.attentions,
+            #hidden_states=sequence_output[-2],
+            #attentions=sequence_output[-1],
         )
 
 
