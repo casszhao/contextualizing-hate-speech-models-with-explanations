@@ -15,7 +15,7 @@ from transformers.modeling_utils import SequenceSummary
 from transformers.models.xlm.modeling_xlm import XLMPreTrainedModel
 from transformers.models.ctrl.modeling_ctrl import MultiHeadAttention
 
-device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+device = torch.device("cuda")
 
 def gelu(x):
     return 0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
