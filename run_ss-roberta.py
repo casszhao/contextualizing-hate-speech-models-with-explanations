@@ -57,9 +57,8 @@ from bert.tokenization import BertTokenizer
 from bert.optimization import BertAdam, WarmupLinearSchedule
 from bert.ss_roberta_model import RobertaForSequenceClassification_Ss_IDW
 
-from transformers import PreTrainedModel, RobertaConfig, RobertaTokenizer
-from transformers.models.roberta.modeling_roberta import RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead #, RobertaEncoder, RobertaPooler,
-
+from transformers.models.roberta.modeling_roberta import PreTrainedModel, RobertaConfig, RobertaTokenizer
+from transformers.models.roberta.modeling_roberta import RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead
 
 from loader import GabProcessor, WSProcessor, NytProcessor, convert_examples_to_features #,multiclass_Processor,multilabel_Processor
 from utils.config import configs, combine_args
