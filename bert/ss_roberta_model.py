@@ -159,20 +159,7 @@ class RobertaForSequenceClassification_Ss_IDW(RobertaPreTrainedModel):
         # 进 encoder
         encoder_output = self.encoder(embedding_output,
                                       extended_attention_mask,
-                                      output_all_encoded_layers=output_all_encoded_layers)
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                      output_all_encoded_layers=False)
 
         sequence_output = encoder_output[0]
         logits = self.classifier(sequence_output)
