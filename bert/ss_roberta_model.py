@@ -6,10 +6,10 @@ from torch.nn import functional as F
 print('transformer version:', transformers.__version__)
 
 
-from transformers import PreTrainedModel, RobertaConfig, RobertaTokenizer
+from transformers import PreTrainedModel, RobertaConfig
 from transformers.models.roberta.modeling_roberta import RobertaPreTrainedModel, RobertaEmbeddings, RobertaEncoder, RobertaPooler, RobertaClassificationHead
 from transformers.models.roberta.modeling_roberta import RobertaPooler #, RobertaEncoder, RobertaPooler,
-
+from transformers.models.roberta.tokenization_roberta import RobertaTokenizer
 from transformers.modeling_utils import SequenceSummary
 
 from transformers.models.xlm.modeling_xlm import XLMPreTrainedModel
