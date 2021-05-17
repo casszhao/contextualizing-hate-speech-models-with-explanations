@@ -15,6 +15,7 @@ import torch
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
 from torch.utils.data.distributed import DistributedSampler
+from transformers.modeling_outputs import SequenceClassifierOutput
 from torch import nn
 from torch.nn import functional as F
 from tqdm import tqdm, trange

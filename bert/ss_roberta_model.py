@@ -12,6 +12,8 @@ from transformers.models.roberta.modeling_roberta import RobertaPooler #, Robert
 from transformers.models.roberta.tokenization_roberta import RobertaTokenizer
 from transformers.modeling_utils import SequenceSummary
 
+from transformers.modeling_outputs import SequenceClassifierOutput
+
 from transformers.models.xlm.modeling_xlm import XLMPreTrainedModel
 from transformers.models.ctrl.modeling_ctrl import MultiHeadAttention
 
