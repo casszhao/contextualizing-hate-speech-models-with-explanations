@@ -106,8 +106,9 @@ class RobertaForSequenceClassification(RobertaPreTrainedModel):
         if token_type_ids is None:
             token_type_ids = torch.zeros_like(input_ids).to(device)
 
-
-
+        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)  # [32, 129] --> [32, 1, 1, 129]
+        extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype)  # fp16 compatibility
+        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
 
 
         embedding_output = self.embeddings(
