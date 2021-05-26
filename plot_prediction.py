@@ -41,7 +41,7 @@ def txt2csv(path, new_csv_name):
         "text": text
     })
 
-    df = df[df['text'].str.contains("muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
+    #df = df[df['text'].str.contains("muslim|jew|jews|white|islam|blacks|muslims|women|whites|gay|black|democat|islamic|allah|jewish|lesbian|transgender|race|brown|woman|mexican|religion|homosexual|homosexuality|africans")]
 
     df.to_csv(new_csv_name, sep=',', index=False)
     # print(df)
@@ -71,9 +71,9 @@ def addinfo(data_name, data_path):
 
     def results_tpye(row):
         if (row['label'] == 1 and row['prediction'] == 1):
-            return 'TPwIT'
+            return 'True Positive'
         if row['label'] == 0 and row['prediction'] == 1:
-            return 'FPwIT'
+            return 'False Positive'
         if row['label'] == 0 and row['prediction'] == 0:
             return 'True Negative'
         if row['label'] == 1 and row['prediction'] == 0:
@@ -81,7 +81,7 @@ def addinfo(data_name, data_path):
         return 'Other'
 
     df['Result'] = df.apply(lambda row: results_tpye(row), axis=1)
-    df = df.loc[(df['Result'] == 'TPwIT') | (df['Result'] == 'FPwIT')]
+    df = df.loc[(df['Result'] == 'False Positive') | (df['Result'] == 'False Negative')]
     #df = df.loc[(df['Result'] == 'False Negative') | (df['Result'] == 'False Positive')]
     print(df['Result'].value_counts())
     # only keep 'True Positive' and 'False Positive'
@@ -104,8 +104,9 @@ frames = [D1, D3, D4, D5]
 # label, text, Prediction, Subjective Score, Data, Result
 df = pd.concat(frames)
 
-df.to_csv('./results/nonIT_FN_FP.csv')
+df.to_csv('./results/4data_BERT_errors.csv')
 
+stop
 sns.set_theme(style="whitegrid")
 
 my_palette = {"FPwIT": "g", "TPwIT": "y"}
